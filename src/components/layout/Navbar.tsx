@@ -43,9 +43,18 @@ export default function Navbar() {
           </div>
         </div>
 
+{/* ROW 1: Date + Categories */}
+        <div className="flex items-center justify-between py-3 text-bodyM border-b">
 
+          {/* Date */}
+          <div className="flex items-center gap-2 text-label">
+            <span>☀️</span>
+            <span className="font-body font-medium">
+              Saturday, February 7, 2026
+            </span>
+          </div>
         {/* Categories */}
-          <nav className="flex gap-6">
+          <nav className="flex gap-8">
             {categories.map((cat) => (
               <Link
                 key={cat}
@@ -77,6 +86,7 @@ export default function Navbar() {
           <span className="font-body cursor-pointer flex items-center gap-1 hover:text-action">
             Explore Topic <span className="text-xs">▾</span>
           </span>
+      </div>
       </div>
     </div>
   );
