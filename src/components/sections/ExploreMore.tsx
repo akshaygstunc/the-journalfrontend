@@ -1,41 +1,48 @@
+import Image from "next/image";
+import pem from "../../../public/images/pem1.png"
+
 export default function ExploreMore() {
   return (
     <div className="mt-16">
-      
       {/* Section Title */}
-      <h2 className="text-3xl font-heading mb-8">
+      <h2 className="text-[40px] font-bold text-[#212121] mb-8">
         Explore More
       </h2>
 
       {/* Articles List */}
       <div className="space-y-10">
-
         {[1, 2, 3].map((item) => (
-          <div key={item} className="flex gap-6 border-b pb-8">
-
+          <div key={item} className="flex gap-6 pb-8">
             {/* Image */}
-            <div className="w-[220px] h-[150px] bg-gray-300 rounded-md shrink-0" />
+            
+              <Image src={pem} alt="news-image" />
+           
 
             {/* Content */}
             <div>
-              <h3 className="text-xl font-semibold mb-2">
+              <h2 className="text-[30px] text-[#212121] font-bold leading-snug mb-3 transition-colors">
                 Philomena Cunk Is Weird Enough to Take on the World
-              </h3>
+              </h2>
 
-              <p className="text-sm text-gray-500 mb-3">
-                ● BBC • Nature • 3h ago • 4 Min Read
+              <p className="text-xs text-[#4F4F4F] mb-4 tracking-wide">
+                ● BBC • 3h ago • 4 Min Read
               </p>
 
-              <p className="text-sm text-gray-600 leading-6">
-                The new Netflix show looks like an ambitious BBC documentary.
-                Until its fictional host, created by Charlie Brooker,
-                starts to ask some deeply silly questions.
+              <p className="text-[#2F2F2F] text-[16px] leading-6 border-t border-[#D1D1D1] pt-4">
+                The new Netflix show “Cunk on Earth” looks like an ambitious BBC
+                documentary. Until its fictional host, created by Charlie
+                Brooker, starts to ask some deeply silly questions. The new
+                Netflix show “Cunk on Earth” looks like an ambitious BBC
+                documentary. Until The new Netflix show “Cunk on Earth” looks
+                like an ambitious BBC documentary. Until its fictional host,
+                created by Charlie Brooker, starts to ask some deeply sill..
+                ooks like an ambitious BBC documentary. Until its fictional
+                host, created by Charlie Brooker, starts to ask some deeply
+                sill..
               </p>
             </div>
-
           </div>
         ))}
-
       </div>
     </div>
   );

@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/src/components/layout/Header";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import Footer from "@/src/components/layout/Footer";
+import Navbar from "@/src/components/layout/Navbar";
 
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "The Journal",
@@ -28,11 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
+        className={`${inter.variable} font-inter antialiased bg-[#F9F6F3] text-gray-900`}
       >
-        {/* <Header /> */}
+        <Navbar />
         <main className="min-h-screen">{children}</main>
-        {/* <Footer /> */}
+        <Footer />
       </body>
     </html>
   );

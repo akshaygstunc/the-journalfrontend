@@ -15,7 +15,7 @@ export default function Header() {
             />
           </div>
 
-          <h1 className="text-2xl font-bold text-primary font-serif">
+          <h1 className="text-2xl font-bold text--[#861212] font-serif">
             THE JOURNAL
           </h1>
 

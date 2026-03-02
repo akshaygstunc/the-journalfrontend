@@ -1,6 +1,11 @@
+import Container from "@/src/components/layout/Container";
 import ExploreMore from "@/src/components/sections/ExploreMore";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import politics from "../../../public/images/featured1.png";
+import poli from "../../../public/images/poli.png";
+import poli1 from "../../../public/images/poli1.png";
+import { MdArrowOutward } from "react-icons/md";
 
 export default async function CategoryPage({
   params,
@@ -12,96 +17,98 @@ export default async function CategoryPage({
   if (!slug) return notFound();
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-12">
-      {/* Category Title */}
-      <h1 className="text-4xl font-heading capitalize mb-10">{slug}</h1>
+    <Container>
+      <div className="w-full mx-auto px-12 py-12">
+        {/* Category Title */}
+        <h1 className="text-[50px] font-bold text-[#212121] capitalize mb-10">
+          {slug}
+        </h1>
 
-      {/* Top 2 Featured */}
-      <div className="grid md:grid-cols-2 gap-12 mb-20">
-        {/* Left Featured */}
-        <div className="group cursor-pointer">
-          <div className="relative h-[300px] w-full overflow-hidden rounded-md mb-5">
-            <Image
-              src="/images/featured1.png"
-              alt="Featured News"
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          </div>
-
-          <h2 className="text-2xl font-heading leading-snug mb-3 group-hover:text-action transition-colors">
-            Philomena Cunk Is Weird Enough to Take on the World
-          </h2>
-
-          <p className="text-xs text-gray-500 mb-4 tracking-wide">
-            ● BBC • 3h ago • 4 Min Read
-          </p>
-
-          <p className="text-gray-600 text-sm leading-6 border-t pt-4">
-            The new Netflix show "Cunk on Earth" looks like an ambitious BBC
-            documentary. Until its fictional host, created by Charlie Brooker,
-            starts to ask some deeply silly questions.
-          </p>
-        </div>
-
-        {/* Right Featured */}
-        <div className="group cursor-pointer">
-            <div className="relative h-[300px] w-full overflow-hidden rounded-md mb-5">
+        {/* Top 2 Featured */}
+        <div className="grid md:grid-cols-2 gap-12 mb-20">
+          {/* Left Featured */}
+          <div className="group cursor-pointer">
+            <div className="relative w-full mb-5">
               <Image
-                src="/images/featured1.png"
+                src={politics}
                 alt="Featured News"
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="transition-transform duration-500 group-hover:scale-105"
               />
             </div>
 
-            <h2 className="text-2xl font-heading leading-snug mb-3 group-hover:text-action transition-colors">
+            <h2 className="text-[30px] text-[#212121] font-bold leading-snug mb-3 transition-colors">
               Philomena Cunk Is Weird Enough to Take on the World
             </h2>
 
-            <p className="text-xs text-gray-500 mb-4 tracking-wide">
+            <p className="text-xs text-[#4F4F4F] mb-4 tracking-wide">
               ● BBC • 3h ago • 4 Min Read
             </p>
 
-            <p className="text-gray-600 text-sm leading-6 border-t pt-4">
-              The new Netflix show "Cunk on Earth" looks like an ambitious BBC
+            <p className="text-[#2F2F2F] text-[16px] leading-6 border-t border-[#D1D1D1] pt-4">
+              The new Netflix show “Cunk on Earth” looks like an ambitious BBC
               documentary. Until its fictional host, created by Charlie Brooker,
-              starts to ask some deeply silly questions.
+              starts to ask some deeply silly questions. The new Netflix show
+              “Cunk on Earth” looks like an ambitious BBC documentary. Until
             </p>
+          </div>
+
+          {/* Right Featured */}
+          <div className="group cursor-pointer">
+            <div className="relative w-full mb-5">
+              <Image
+                src={politics}
+                alt="Featured News"
+                className="transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
+
+            <h2 className="text-[30px] text-[#212121] font-bold leading-snug mb-3 transition-colors">
+              Philomena Cunk Is Weird Enough to Take on the World
+            </h2>
+
+            <p className="text-xs text-[#4F4F4F] mb-4 tracking-wide">
+              ● BBC • 3h ago • 4 Min Read
+            </p>
+
+            <p className="text-[#2F2F2F] text-[16px] leading-6 border-t border-[#D1D1D1] pt-4">
+              The new Netflix show “Cunk on Earth” looks like an ambitious BBC
+              documentary. Until its fictional host, created by Charlie Brooker,
+              starts to ask some deeply silly questions. The new Netflix show
+              “Cunk on Earth” looks like an ambitious BBC documentary. Until
+            </p>
+          </div>
         </div>
-      </div>
 
-     
-      {/* Divider */}
-      <div className="border-t mb-12" />
+        {/* Divider */}
+        <div className="border-t border-[#D1D1D1] mb-12" />
 
-      {/* Section Tag Navigation */}
-        <div className="flex flex-wrap gap-6 text-sm font-medium mb-10 text-gray-700">
-          <span className="uppercase font-semibold text-black">
+        {/* Section Tag Navigation */}
+        <div className="flex flex-wrap justify-between items-center gap-6 text-[16px] font-medium mb-10 text-[#212121]">
+          <span className="uppercase font-extrabold text-[#212121]">
             The Ukraine War
           </span>
-          <span className="hover:text-action cursor-pointer">
-            Latest Developments ↗
+          <span className="flex items-center gap-2 hover:text-action cursor-pointer">
+            Latest Developments <MdArrowOutward />
           </span>
-          <span className="hover:text-action cursor-pointer">
-            Front-Line Shifts ↗
+          <span className="flex items-center gap-2 hover:text-action cursor-pointer">
+            Front-Line Shifts <MdArrowOutward />
           </span>
-          <span className="hover:text-action cursor-pointer">
-            NATO Response ↗
+          <span className="flex items-center gap-2 hover:text-action cursor-pointer">
+            NATO Response <MdArrowOutward />
           </span>
-          <span className="hover:text-action cursor-pointer">
-            Russia’s Strategy ↗
+          <span className="flex items-center gap-2 hover:text-action cursor-pointer">
+            Russia’s Strategy <MdArrowOutward />
           </span>
-          <span className="hover:text-action cursor-pointer">
-            Global Impact ↗
+          <span className="flex items-center gap-2 hover:text-action cursor-pointer">
+            Global Impact <MdArrowOutward />
           </span>
         </div>
 
-      {/* 3 Column Highlight Section */}
-        <div className="grid lg:grid-cols-3 gap-10 mb-16">
-          {/* Left Small News */}
-          <div>
-            <span className="bg-red-600 text-white text-xs px-3 py-1 rounded-full">
+        {/* 3 Column Highlight Section */}
+        <div className="grid grid-cols-12 gap-10 mb-16">
+          {/* Left Small News (3 cols) */}
+          <div className="col-span-12 lg:col-span-3">
+            <span className="bg-[#861212] text-white text-xs px-3 py-1 rounded-full">
               Live
             </span>
 
@@ -113,34 +120,41 @@ export default async function CategoryPage({
               ● BBC • 3h ago • 4 Min Read
             </p>
 
-            <p className="text-sm text-gray-600 leading-6">
-              Lorem ipsum is simply dummy text of the printing and typesetting
-              industry.
+            <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
+              Lorem Ipsum is simply dummy text of the printing and typesetting
+              industry. Lorem Ipsum has been the industry's standard dummy text
+              ever since the dummy text ever since the Philomena Cunk Is
             </p>
           </div>
 
-          {/* Center Big Featured */}
-          <div>
-            <div className="bg-gray-300 h-[240px] rounded-md mb-4" />
+          {/* Center Big Featured (6 cols) */}
+          <div className="col-span-12 lg:col-span-6">
+            <div className="mb-4">
+              <Image src={poli} alt="news-image" />
+            </div>
 
-            <h2 className="font-semibold text-xl mb-2">
+            <h2 className="font-bold text-3xl text-[#212121] mb-2">
               Western Allies Signal Long-Term Military Support as Fighting
-              Intensifies
+              Intensifies in Easter..
             </h2>
 
             <p className="text-sm text-gray-500 mb-3">
               ● BBC • 3h ago • 4 Min Read
             </p>
 
-            <p className="text-sm text-gray-600 leading-6">
-              The new Netflix show looks like an ambitious BBC documentary. Until
-              its fictional host starts asking deeply silly questions.
+            <p className="text-sm text-gray-600 leading-6 w-[90%] pt-2 border-t border-[#D1D1D1]">
+              The new Netflix show “Cunk on Earth” looks like an ambitious BBC
+              documentary. Until its fictional host, created by Charlie Brooker,
+              starts to ask some deeply silly questions. The new Netflix show
+              “Cunk on Earth” looks like an ambitious BBC documentary. Until
             </p>
           </div>
 
-          {/* Right Small Featured */}
-          <div>
-            <div className="bg-gray-200 h-[180px] rounded-md mb-4" />
+          {/* Right Small News (3 cols) */}
+          <div className="col-span-12 lg:col-span-3">
+            <div className="mb-4">
+              <Image src={poli1} alt="news-image" className="rounded-md" />
+            </div>
 
             <h3 className="font-semibold text-lg mb-2">
               Philomena Cunk Is Weird Enough to Take on the World
@@ -150,16 +164,18 @@ export default async function CategoryPage({
               ● BBC • 3h ago • 4 Min Read
             </p>
 
-            <p className="text-sm text-gray-600 leading-6">
+            <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
               The new Netflix show looks like an ambitious BBC documentary.
             </p>
           </div>
         </div>
 
-      {/* Bottom Divider */}
-      <div className="border-t mb-12" />
-      {/* More Articles Grid */}
-      <ExploreMore />
-    </div>
+        {/* Bottom Divider */}
+        <div className="border-t border-[#D1D1D1] mb-12" />
+
+        {/* More Articles Grid */}
+        <ExploreMore />
+      </div>
+    </Container>
   );
 }

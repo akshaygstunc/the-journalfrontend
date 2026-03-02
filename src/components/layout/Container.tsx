@@ -3,5 +3,5 @@ export default function Container({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="container mx-auto">{children}</div>;
+  return <div className="container mx-auto font-sans">{children}</div>;
 }
