@@ -16,7 +16,7 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        inter: ["var(--font-inter)", "sans-serif"],
+        sans: ["var(--font-inter)", "sans-serif"],
         body: ["Inter", "sans-serif"],
         heading: ["Inter", "sans-serif"],
         button: ["Inter", "sans-serif"],
