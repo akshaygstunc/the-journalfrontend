@@ -5,6 +5,7 @@ import { FaCheckSquare, FaSearch } from "react-icons/fa";
 import day from "./../../../public/Day.png";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { LuMenu } from "react-icons/lu";
 
 export default function Navbar() {
   const topics = [
@@ -14,7 +15,7 @@ export default function Navbar() {
     "Ministry & Governance",
   ];
   const pathname = usePathname();
-
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // adjust this to your article route
   const isArticlePage = pathname.startsWith("/article");
   const [showTopics, setShowTopics] = useState(false);
@@ -47,7 +48,12 @@ export default function Navbar() {
         {/* Top line */}
         <div className="flex items-center justify-between py-4 px-6">
           <div className="flex items-center gap-4">
-            <button className="text-xl">☰</button>
+            <button
+              className="text-xl md:hidden"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <LuMenu />
+            </button>
             <div className="flex gap-2 items-center border border-[#D1D1D1] rounded-md px-4 py-2 ">
               <FaSearch />
               <input
@@ -57,7 +63,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <h1 className="font-body font-bold text-[40px] text-[#861212] text-action tracking-wide">
+          <h1 className="font-body font-bold text-[40px] md-text-[30px] text-[#861212] text-action tracking-wide">
             THE JOURNAL
           </h1>
 
@@ -71,124 +77,202 @@ export default function Navbar() {
           </div>
         </div>
 
-
-{!isArticlePage && (
-        <>
-          {/* ROW 1: Date + Categories */}
-          <div className="w-full flex justify-between items-center px-6 text-body border-y border-[#E7E7E7]">
-            {/* Date */}
-            <div className="flex items-center gap-2 text-label">
-              <span>
-                <Image src={day} alt="weather" />
-              </span>
-              <span className="font-body font-medium py-2 pr-4 ">
-                <strong>Saturday,</strong> <br /> February 7, 2026
-              </span>
-            </div>
-            <div className="w-0.5 border-l-[2.5px] border-[#D1D1D1] h-[50px]"></div>
-            {/* Categories */}
-            <nav className="w-[80%] flex justify-between">
-              {categories.map((cat) => (
-                <Link
-                  key={cat}
-                  href={`/category/${cat.toLowerCase()}`}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`font-body pb-1 transition-colors duration-200
+        {/* list bar */}
+        <div className="hidden md:block">
+          <>
+            {/* ROW 1: Date + Categories */}
+            <div className="w-full flex justify-between items-center px-6 text-body border-y border-[#E7E7E7]">
+              {/* Date */}
+              <div className="flex items-center gap-2 text-label">
+                <span>
+                  <Image src={day} alt="weather" />
+                </span>
+                <span className="font-body font-medium py-2 pr-4 ">
+                  <strong>Saturday,</strong> <br /> February 7, 2026
+                </span>
+              </div>
+              <div className="w-0.5 border-l-[2.5px] border-[#D1D1D1] h-[50px]"></div>
+              {/* Categories */}
+              <nav className="w-[80%] flex justify-between">
+                {categories.map((cat) => (
+                  <Link
+                    key={cat}
+                    href={`/category/${cat.toLowerCase()}`}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`font-body pb-1 transition-colors duration-200
                   ${
                     cat === activeCategory
                       ? "text-[#861212] border-b-2 border-[#861212]"
                       : "text-[#6D6D6D] hover:text-[#861212]"
                   }`}
+                  >
+                    {cat}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            {/* ROW 2: Sub navigation */}
+            <div className="flex justify-center gap-10 p-4 text-body">
+              <span className="font-semibold cursor-pointer hover:text-action">
+                Latest
+              </span>
+              <span className="font-semibold cursor-pointer hover:text-action">
+                Most Read
+              </span>
+              <span className="font-semibold cursor-pointer hover:text-action">
+                Most Shared
+              </span>
+              <span className="font-semibold cursor-pointer flex items-center gap-1 hover:text-action">
+                <div className="relative">
+                  <span
+                    onClick={() => setShowTopics(!showTopics)}
+                    className="font-semibold cursor-pointer flex items-center gap-1 hover:text-[#861212]"
+                  >
+                    Explore Topic <span className="text-xs">▾</span>
+                  </span>
+
+                  {showTopics && (
+                    <div className="absolute top-10 right-0 w-[280px] bg-white border border-[#E7E7E7] rounded-md shadow-lg p-4 z-50">
+                      <p className="text-xs text-[#6D6D6D] mb-3 uppercase">
+                        Explore by
+                      </p>
+
+                      {/* Topics */}
+                      <div className="space-y-3">
+                        {topics.map((topic) => {
+                          const active = selectedTopics.includes(topic);
+
+                          return (
+                            <div
+                              key={topic}
+                              onClick={() => toggleTopic(topic)}
+                              className="flex items-center gap-3 cursor-pointer"
+                            >
+                              {active ? (
+                                <FaCheckSquare className="text-[#861212] text-lg" />
+                              ) : (
+                                <div className="w-4 h-4 border border-[#D1D1D1] rounded-sm" />
+                              )}
+                              <span className="text-sm text-[#212121]">
+                                {topic}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex justify-between items-center mt-6">
+                        <button
+                          onClick={clearAll}
+                          className="text-[#861212] text-sm font-medium"
+                        >
+                          Clear All
+                        </button>
+
+                        <button
+                          onClick={() => setShowTopics(false)}
+                          className="bg-[#861212] text-white px-4 py-1 rounded-md text-sm"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </span>
+            </div>
+          </>
+        </div>
+
+        {/* Mobile Overlay */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+
+        {/* Mobile Sidebar */}
+        <div
+          className={`fixed top-0 left-0 h-full w-[280px] bg-white z-50 transform transition-transform duration-300 md:hidden
+  ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b">
+            <span className="font-bold text-[#861212]">THE JOURNAL</span>
+            <button onClick={() => setMobileMenuOpen(false)}>✕</button>
+          </div>
+
+          {/* Categories */}
+          <div className="px-5 py-4 border-b">
+            <p className="text-xs uppercase text-[#6D6D6D] mb-3">Categories</p>
+            <ul className="space-y-3">
+              {categories.map((cat) => (
+                <li
+                  key={cat}
+                  className={`text-sm cursor-pointer ${
+                    activeCategory === cat
+                      ? "text-[#861212] font-semibold"
+                      : "text-[#212121]"
+                  }`}
+                  onClick={() => {
+                    setActiveCategory(cat);
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   {cat}
-                </Link>
+                </li>
               ))}
-            </nav>
+            </ul>
           </div>
 
-          {/* ROW 2: Sub navigation */}
-          <div className="flex justify-center gap-10 p-4 text-body">
-            <span className="font-semibold cursor-pointer hover:text-action">
-              Latest
-            </span>
-            <span className="font-semibold cursor-pointer hover:text-action">
-              Most Read
-            </span>
-            <span className="font-semibold cursor-pointer hover:text-action">
-              Most Shared
-            </span>
-            <span className="font-semibold cursor-pointer flex items-center gap-1 hover:text-action">
-              <div className="relative">
-                <span
-                  onClick={() => setShowTopics(!showTopics)}
-                  className="font-semibold cursor-pointer flex items-center gap-1 hover:text-[#861212]"
-                >
-                  Explore Topic <span className="text-xs">▾</span>
-                </span>
+          {/* Sub Navigation */}
+          <div className="px-5 py-4 border-b">
+            <p className="text-xs uppercase text-[#6D6D6D] mb-3">Browse</p>
+            <div className="space-y-3 text-sm">
+              <div className="cursor-pointer">Latest</div>
+              <div className="cursor-pointer">Most Read</div>
+              <div className="cursor-pointer">Most Shared</div>
+            </div>
+          </div>
 
-                {showTopics && (
-                  <div className="absolute top-10 right-0 w-[280px] bg-white border border-[#E7E7E7] rounded-md shadow-lg p-4 z-50">
-                    <p className="text-xs text-[#6D6D6D] mb-3 uppercase">
-                      Explore by
-                    </p>
+          {/* Explore Topics */}
+          <div className="px-5 py-4">
+            <p className="text-xs uppercase text-[#6D6D6D] mb-3">
+              Explore Topics
+            </p>
+            <div className="space-y-3">
+              {topics.map((topic) => {
+                const active = selectedTopics.includes(topic);
 
-                    {/* Topics */}
-                    <div className="space-y-3">
-                      {topics.map((topic) => {
-                        const active = selectedTopics.includes(topic);
-
-                        return (
-                          <div
-                            key={topic}
-                            onClick={() => toggleTopic(topic)}
-                            className="flex items-center gap-3 cursor-pointer"
-                          >
-                            {active ? (
-                              <FaCheckSquare className="text-[#861212] text-lg" />
-                            ) : (
-                              <div className="w-4 h-4 border border-[#D1D1D1] rounded-sm" />
-                            )}
-                            <span className="text-sm text-[#212121]">
-                              {topic}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex justify-between items-center mt-6">
-                      <button
-                        onClick={clearAll}
-                        className="text-[#861212] text-sm font-medium"
-                      >
-                        Clear All
-                      </button>
-
-                      <button
-                        onClick={() => setShowTopics(false)}
-                        className="bg-[#861212] text-white px-4 py-1 rounded-md text-sm"
-                      >
-                        Apply
-                      </button>
-                    </div>
+                return (
+                  <div
+                    key={topic}
+                    onClick={() => toggleTopic(topic)}
+                    className="flex items-center gap-3 cursor-pointer"
+                  >
+                    {active ? (
+                      <FaCheckSquare className="text-[#861212]" />
+                    ) : (
+                      <div className="w-4 h-4 border border-[#D1D1D1] rounded-sm" />
+                    )}
+                    <span className="text-sm">{topic}</span>
                   </div>
-                )}
-              </div>
-            </span>
+                );
+              })}
+            </div>
           </div>
-        </>
-)}
-
-
+        </div>
         {isArticlePage && (
           <div className="px-6 py-6 border-t border-[#E7E7E7]">
-           <div className="flex items-center gap-2 text-[14px] leading-[20px] text-gray-500 hover:text-gray-700 cursor-pointer max-w-[484px]">
-        <span className="text-[16px] leading-none">←</span>
-        <span className="truncate">
-          Gen Z toppled an autocrat - but old guard tipped to win...
-        </span>
-      </div>
+            <div className="flex items-center gap-2 text-[14px] leading-[20px] text-gray-500 hover:text-gray-700 cursor-pointer max-w-[484px]">
+              <span className="text-[16px] leading-none">←</span>
+              <span className="truncate">
+                Gen Z toppled an autocrat - but old guard tipped to win...
+              </span>
+            </div>
           </div>
         )}
       </div>
