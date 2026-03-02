@@ -6,14 +6,14 @@ export default function SearchPage() {
   return (
     <Container>
       <div className="mt-10 mb-8">
-        <h2 className="text-[40px] font-bold">
+        <h2 className="text-[50px] font-bold">
           <span className="text-[#6D6D6D]"> Showing Results for </span>
           <span className="text-[#212121]">Election Commission</span>
         </h2>
         <p className="text-xs text-[#4F4F4F]">24 Results</p>
       </div>
       {/* Articles List */}
-      <div className="space-y-10">
+      <div className="space-y-10  border-b border-[#D1D1D1]">
         {[1, 2, 3].map((item) => (
           <div key={item} className="flex gap-6 pb-8">
             {/* Image */}
