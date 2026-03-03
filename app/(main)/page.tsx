@@ -154,6 +154,7 @@ export default function Home() {
                     <Image
                       src={img}
                       alt="news-image"
+                       className="w-full h-full object-cover rounded-md" 
                     />
                   </div>
 
@@ -414,8 +415,8 @@ export default function Home() {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8 lg:mt-12">
               <div>
-                <div>
-                  <Image src={em1} alt="news-image" />
+                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                  <Image src={em1} alt="news-image"  className="w-full h-full object-cover rounded-md" />
                 </div>
 
                 <h3 className="font-heading font-bold text-h5 mt-4">
@@ -432,8 +433,8 @@ export default function Home() {
                 </p>
               </div>
               <div>
-                <div>
-                  <Image src={em2} alt="news-image" />
+                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                  <Image src={em2} alt="news-image"  className="w-full h-full object-cover rounded-md"  />
                 </div>
 
                 <h3 className="font-heading font-bold text-h5 mt-4">
@@ -450,8 +451,8 @@ export default function Home() {
                 </p>
               </div>
               <div>
-                <div>
-                  <Image src={em3} alt="news-image" />
+               <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                  <Image src={em3} alt="news-image"  className="w-full h-full object-cover rounded-md" />
                 </div>
 
                 <h3 className="font-heading font-bold text-h5 mt-4">
@@ -468,8 +469,8 @@ export default function Home() {
                 </p>
               </div>
               <div>
-                <div>
-                  <Image src={em4} alt="news-image" />
+                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                  <Image src={em4} alt="news-image" className="w-full h-full object-cover rounded-md"  />
                 </div>
 
                 <h3 className="font-heading font-bold text-h5 mt-4">
