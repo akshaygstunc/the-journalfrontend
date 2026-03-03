@@ -1,20 +1,20 @@
 import Container from "@/src/components/layout/Container";
 import { SectionHeader } from "@/src/components/SectionHeader";
 import Image from "next/image";
-import em from "./../public/images/em.png";
-import em1 from "./../public/images/em1.png";
-import em2 from "./../public/images/em2.png";
-import em3 from "./../public/images/em3.png";
-import em4 from "./../public/images/em4.png";
-import tn from "./../public/images/tn.png";
-import tn1 from "./../public/images/tn1.png";
-import tn2 from "./../public/images/tn2.png";
-import tn3 from "./../public/images/tn3.png";
-import tn4 from "./../public/images/tn4.png";
-import mw1 from "./../public/images/mw1.png";
-import mw2 from "./../public/images/mw2.png";
-import mw3 from "./../public/images/mw3.png";
-import mw4 from "./../public/images/mw4.png";
+import em from "../../public/images/em.png";
+import em1 from "../../public/images/em1.png";
+import em2 from "../../public/images/em2.png";
+import em3 from "../../public/images/em3.png";
+import em4 from "../../public/images/em4.png";
+import tn from "../../public/images/tn.png";
+import tn1 from "../../public/images/tn1.png";
+import tn2 from "../../public/images/tn2.png";
+import tn3 from "../../public/images/tn3.png";
+import tn4 from "../../public/images/tn4.png";
+import mw1 from "../../public/images/mw1.png";
+import mw2 from "../../public/images/mw2.png";
+import mw3 from "../../public/images/mw3.png";
+import mw4 from "../../public/images/mw4.png";
 
 export default function Home() {
   return (
@@ -24,7 +24,7 @@ export default function Home() {
           {/* HERO SECTION */}
           <div className="grid grid-cols-3 gap-10">
             <div className="col-span-2">
-              <div className="bg-gray-300 h-[526px] rounded-md" />
+              <div className="bg-gray-300 h-131.5 rounded-md" />
 
               <h4 className="font-heading font-bold text-[24px] mt-6">
                 Gen Z toppled an autocrat - but old guard tipped to win
