@@ -62,7 +62,7 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="h-screen w-[220px] bg-[#F5F5F5] flex flex-col border-r border-[#E5E5E5]">
+    <aside className="h-screen w-55 bg-[#F5F5F5] flex flex-col border-r border-[#E5E5E5]">
       {/* Logo area */}
       <div className="flex items-center gap-2 px-6 pt-6 pb-8">
         <div className="h-8 w-8 rounded-full bg-[#861212] flex items-center justify-center">
@@ -110,7 +110,7 @@ export default function AdminSidebar() {
                   </span>
 
                   {item.badge && (
-                    <span className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#861212] text-[11px] font-medium text-white">
+                    <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#861212] text-[11px] font-medium text-white">
                       {item.badge}
                     </span>
                   )}

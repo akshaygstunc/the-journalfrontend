@@ -11,7 +11,7 @@ export default function AdminNavbar() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <header className="h-[70px] bg-[#F5F5F5] flex items-center justify-between px-6 border-b border-[#E5E5E5]">
+    <header className="h-17.5 bg-[#F5F5F5] flex items-center justify-between px-6 border-b border-[#E5E5E5]">
       {/* Logo - matches sidebar */}
       <div className="flex items-center gap-2">
         <div className="h-8 w-8 rounded-full bg-[#861212] flex items-center justify-center">

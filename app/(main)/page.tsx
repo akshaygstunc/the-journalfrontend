@@ -16,14 +16,60 @@ import mw2 from "../../public/images/mw2.png";
 import mw3 from "../../public/images/mw3.png";
 import mw4 from "../../public/images/mw4.png";
 
+// data/homeData.ts
+
+export const heroData = {
+  title:
+    "Gen Z toppled an autocrat - but old guard tipped to win Bangladesh vote",
+  source: "BBC",
+  time: "3h ago",
+  read: "4 Min Read",
+  description:
+    "Rahat Hossain was almost killed trying to save his friend in a youth uprising...",
+};
+
+export const sideNews = Array(3).fill({
+  title: "Philomena Cunk Is Weird Enough to Take on the World",
+  source: "BBC",
+  time: "3h ago",
+  read: "4 Min Read",
+  description:
+    "Lorem Ipsum is simply dummy text of the printing and typesetting industry...",
+});
+
+export const mostWatched = [
+  { image: "mw1" },
+  { image: "mw2" },
+  { image: "mw3" },
+  { image: "mw4" },
+];
+const imageMap: any = { mw1, mw2, mw3, mw4 };
+export const gridNews = Array(4).fill({
+  title: "Philomena Cunk Is Weird Enough to Take on the World",
+  source: "BBC",
+  time: "3h ago",
+  read: "4 Min Read",
+  description:
+    "The new Netflix show looks like an ambitious BBC documentary...",
+});
+
+export const alsoNews = Array(6).fill({
+  title: "Philomena Cunk Is Weird Enough to Take on the World",
+  category: "Nature",
+  source: "BBC",
+  time: "3h ago",
+  read: "4 Min Read",
+  description:
+    "The new Netflix show looks like an ambitious BBC documentary...",
+});
 export default function Home() {
   return (
     <Container>
       <div className="bg-[#f5f5f5a9] min-h-screen font-sans">
         <div className="w-full mx-auto mt-12 space-y-20">
           {/* HERO SECTION */}
-          <div className="grid grid-cols-3 gap-10">
-            <div className="col-span-2">
+          <div className="grid lg:grid-cols-3 md:grid-cols-1 gap-10">
+            <div className="lg:col-span-2 px-4 lg:px-0">
               <div className="bg-gray-300 h-131.5 rounded-md" />
 
               <h4 className="font-heading font-bold text-[24px] mt-6">
@@ -44,7 +90,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-8 px-4 lg:px-0">
               <div className="pb-6">
                 <h3 className="font-heading font-bold text-[18px] text-heading">
                   Philomena Cunk Is Weird Enough to Take on the World
@@ -97,72 +143,40 @@ export default function Home() {
           </div>
 
           {/* MOST WATCHED */}
-          <div>
+          <div className="px-4 lg:px-0">
             <SectionHeader title="Most Watched" />
-            <div className="grid grid-cols-4 gap-8 mt-8">
-              <div>
-                  <div>
-                    <Image src={mw1} alt="news-image" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8">
+              {[mw1, mw2, mw3, mw4].map((img, index) => (
+                <div key={index} className="flex gap-4 lg:flex-col">
+                  {/* Image */}
+                  <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                    <Image
+                      src={img}
+                      alt="news-image"
+                    />
                   </div>
 
-                <span className="bg-[#861212] text-white text-micro px-6 py-1 rounded-full mt-3 inline-block">
-                  Live
-                </span>
+                  {/* Content */}
+                  <div className="flex flex-col">
+                    <span className="bg-[#861212] text-white text-xs px-4 py-1 rounded-full w-fit mb-2">
+                      Live
+                    </span>
 
-                <h3 className="font-heading font-bold text-[20px] mt-3">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
-              </div>
-              <div>
-                  <div>
-                    <Image src={mw2} alt="news-image" />
+                    <h3 className="font-heading font-bold text-[16px] lg:text-[20px] leading-tight">
+                      Philomena Cunk Is Weird Enough to Take on the World
+                    </h3>
                   </div>
-                  
-
-                <span className="bg-[#861212] text-white text-micro px-6 py-1 rounded-full mt-3 inline-block">
-                  Live
-                </span>
-
-                <h3 className="font-heading font-bold text-[20px] mt-3">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
-              </div>
-              <div>
-                  <div>
-                    <Image src={mw3} alt="news-image" />
-                  </div>
-                 
-
-                <span className="bg-[#861212] text-white text-micro px-6 py-1 rounded-full mt-3 inline-block">
-                  Live
-                </span>
-
-                <h3 className="font-heading font-bold text-[20px] mt-3">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
-              </div>
-              <div>
-                  <div>
-                    <Image src={mw4} alt="news-image" />
-                  </div>
-                
-
-                <span className="bg-[#861212] text-white text-micro px-6 py-1 rounded-full mt-3 inline-block">
-                  Live
-                </span>
-
-                <h3 className="font-heading font-bold text-[20px] mt-3">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
-              </div>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* TRENDING NEWS */}
-          <div>
+          <div className="px-4 lg:px-0 w-full">
             <SectionHeader title="Trending News" />
 
-            <div className="grid grid-cols-3 gap-10 mt-8">
+           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:mt-8">
               <div className="col-span-2">
                 <div>
                   <Image src={tn} alt="news-image" />
@@ -238,87 +252,91 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-8 mt-12">
-              <div>
-                <div>
-                  <Image src={tn1} alt="news-image" />
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8">
+              <div className="flex gap-4 lg:flex-col">
+                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                  <Image src={tn1} alt="news-image" className="w-full h-full object-cover rounded-md" />
                 </div>
+                <div className="flex flex-col">
+                  <h3 className="font-heading font-bold text-h5 mt-0 lg:mt-4">
+                    Philomena Cunk Is Weird Enough to Take on the World
+                  </h3>
 
-                <h3 className="font-heading font-bold text-h5 mt-4">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
+                  <p className="text-micro text-label mt-2">
+                    ● BBC • 3h ago • 4 Min Read
+                  </p>
 
-                <p className="text-micro text-label mt-2">
-                  ● BBC • 3h ago • 4 Min Read
-                </p>
-
-                <p className="text-bodyM text-gray-600 mt-3">
-                  The new Netflix show looks like an ambitious BBC
-                  documentary...
-                </p>
+                  <p className="text-bodyM text-gray-600 mt-3">
+                    The new Netflix show looks like an ambitious BBC
+                    documentary...
+                  </p>
+                </div>
               </div>
-              <div>
-                <div>
-                  <Image src={tn2} alt="news-image" />
+              <div className="flex gap-4 lg:flex-col">
+                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                  <Image src={tn2} alt="news-image" className="w-full h-full object-cover rounded-md" />
                 </div>
+                <div className="flex flex-col">
+                  <h3 className="font-heading font-bold text-h5 mt-0 lg:mt-4">
+                    Philomena Cunk Is Weird Enough to Take on the World
+                  </h3>
 
-                <h3 className="font-heading font-bold text-h5 mt-4">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
+                  <p className="text-micro text-label mt-2">
+                    ● BBC • 3h ago • 4 Min Read
+                  </p>
 
-                <p className="text-micro text-label mt-2">
-                  ● BBC • 3h ago • 4 Min Read
-                </p>
-
-                <p className="text-bodyM text-gray-600 mt-3">
-                  The new Netflix show looks like an ambitious BBC
-                  documentary...
-                </p>
+                  <p className="text-bodyM text-gray-600 mt-3">
+                    The new Netflix show looks like an ambitious BBC
+                    documentary...
+                  </p>
+                </div>
               </div>
-              <div>
-                <div>
-                  <Image src={tn3} alt="news-image" />
+              <div className="flex gap-4 lg:flex-col">
+                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                  <Image src={tn3} alt="news-image" className="w-full h-full object-cover rounded-md" />
                 </div>
+                <div className="flex flex-col">
+                  <h3 className="font-heading font-bold text-h5 mt-0 lg:mt-4">
+                    Philomena Cunk Is Weird Enough to Take on the World
+                  </h3>
 
-                <h3 className="font-heading font-bold text-h5 mt-4">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
+                  <p className="text-micro text-label mt-2">
+                    ● BBC • 3h ago • 4 Min Read
+                  </p>
 
-                <p className="text-micro text-label mt-2">
-                  ● BBC • 3h ago • 4 Min Read
-                </p>
-
-                <p className="text-bodyM text-gray-600 mt-3">
-                  The new Netflix show looks like an ambitious BBC
-                  documentary...
-                </p>
+                  <p className="text-bodyM text-gray-600 mt-3">
+                    The new Netflix show looks like an ambitious BBC
+                    documentary...
+                  </p>
+                </div>
               </div>
-              <div>
-                <div>
-                  <Image src={tn4} alt="news-image" />
+              <div className="flex gap-4 lg:flex-col">
+                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                  <Image src={tn4} alt="news-image" className="w-full h-full object-cover rounded-md" />
                 </div>
+                <div className="flex flex-col">
+                  <h3 className="font-heading font-bold text-h5 mt-0 lg:mt-4">
+                    Philomena Cunk Is Weird Enough to Take on the World
+                  </h3>
 
-                <h3 className="font-heading font-bold text-h5 mt-4">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
+                  <p className="text-micro text-label mt-2">
+                    ● BBC • 3h ago • 4 Min Read
+                  </p>
 
-                <p className="text-micro text-label mt-2">
-                  ● BBC • 3h ago • 4 Min Read
-                </p>
-
-                <p className="text-bodyM text-gray-600 mt-3">
-                  The new Netflix show looks like an ambitious BBC
-                  documentary...
-                </p>
+                  <p className="text-bodyM text-gray-600 mt-3">
+                    The new Netflix show looks like an ambitious BBC
+                    documentary...
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* EXPLORE MORE */}
-          <div>
+          <div  className="px-4 lg:px-0 w-full">
             <SectionHeader title="Explore More" />
 
-            <div className="grid grid-cols-3 gap-10 mt-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:mt-8">
               <div className="col-span-2">
                 <div>
                   <Image src={em} alt="news-image" />
@@ -394,7 +412,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-8 mt-12">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8 lg:mt-12">
               <div>
                 <div>
                   <Image src={em1} alt="news-image" />
@@ -471,10 +489,10 @@ export default function Home() {
           </div>
 
           {/* ALSO IN NEWS */}
-          <div className="pb-20">
+          <div className="pb-20 px-4 lg:px-0">
             <SectionHeader title="Also In News" />
 
-            <div className="grid grid-cols-2 gap-12 mt-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-10">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="pb-4">
                   <h3 className="font-heading font-bold text-[20px]">

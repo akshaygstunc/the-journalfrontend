@@ -9,7 +9,7 @@ export default function StoryPreviewDrawer() {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-full md:w-[500px] bg-white shadow-xl transition-transform duration-300 z-50 ${
+      className={`fixed top-0 right-0 h-full w-full md:w-125 bg-white shadow-xl transition-transform duration-300 z-50 ${
         previewOpen
           ? "translate-x-0"
           : "translate-x-full"
