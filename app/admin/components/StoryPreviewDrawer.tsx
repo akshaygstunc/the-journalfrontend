@@ -2,36 +2,30 @@
 
 import { useUIStore } from "../lib/store/uiStore";
 
-
 export default function StoryPreviewDrawer() {
-  const { previewOpen, closePreview, selectedStory } =
-    useUIStore();
+  const { previewOpen, closePreview, selectedStory } = useUIStore();
 
   return (
     <div
       className={`fixed top-0 right-0 h-full w-full md:w-125 bg-white shadow-xl transition-transform duration-300 z-50 ${
-        previewOpen
-          ? "translate-x-0"
-          : "translate-x-full"
+        previewOpen ? "translate-x-0" : "translate-x-full"
       }`}
     >
       <div className="p-6 overflow-y-auto h-full">
-        <button
-          onClick={closePreview}
-          className="text-gray-500 mb-4"
-        >
+        <button onClick={closePreview} className="text-gray-500 mb-4">
           ✕
         </button>
 
-        <h2 className="text-xl font-semibold mb-3">
-          {selectedStory?.title}
-        </h2>
+        <h2 className="text-xl font-semibold mb-3">{selectedStory?.title}</h2>
+        <p className="text-sm text-gray-500 mt-3">
+          {selectedStory?.description}
+        </p>
+        <img src="/placeholder.jpg" className="w-full rounded mb-4" />
+        <button className="border px-3 py-2 rounded">Send to Desk</button>
 
-        <img
-          src="/placeholder.jpg"
-          className="w-full rounded mb-4"
-        />
+        <button className="border px-3 py-2 rounded">Copy Edit</button>
 
+        <button className="border px-3 py-2 rounded">Publish</button>
         <p className="text-sm text-gray-700 leading-6">
           Full story preview content goes here...
         </p>

@@ -6,7 +6,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { api } from "../../lib/axios";
 import { useEffect, useState } from "react";
-import { slugify, z } from "zod";
+import slugify from "slugify";
+import { z } from "zod";
 import Select from "react-select";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
@@ -86,7 +87,8 @@ export default function CreateArticle() {
     if (title) {
       setValue("slug", slugify(title, { lower: true, strict: true }));
     }
-  }, [title]);
+  }, [title, setValue]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       saveDraft.mutate({
@@ -133,28 +135,28 @@ export default function CreateArticle() {
   return (
     <div className="flex w-full min-h-screen bg-[#F4F4F4]">
       {/* LEFT CONTENT */}
-      <div className="flex-1 px-8 py-8">
+      <div className="flex-1">
+        <div className="flex justify-between items-center mb-6 bg-white p-6 border-b border-[#E7E7E7]">
+          <div>
+            <h2 className="text-xl font-semibold">
+              New Story{" "}
+              <span className="text-xs bg-gray-200 px-2 py-1 rounded">
+                Draft
+              </span>
+            </h2>
+          </div>
+
+          <button
+            type="submit"
+            form="articleForm"
+            className="flex items-center gap-2 bg-[#861212] text-white px-5 py-2 rounded-md"
+          >
+            <FiSend />
+            Send To Desk
+          </button>
+        </div>
         <div className="max-w-4xl mx-auto bg-white rounded-xl p-8 shadow-sm">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-xl font-semibold">
-                New Story{" "}
-                <span className="text-xs bg-gray-200 px-2 py-1 rounded">
-                  Draft
-                </span>
-              </h2>
-            </div>
-
-            <button
-              type="submit"
-              form="articleForm"
-              className="flex items-center gap-2 bg-[#861212] text-white px-5 py-2 rounded-md"
-            >
-              <FiSend />
-              Send To Desk
-            </button>
-          </div>
 
           {/* FORM */}
           <form
@@ -165,13 +167,13 @@ export default function CreateArticle() {
             {/* Headline */}
             <input
               {...register("title")}
-              className="w-full border rounded px-4 py-3 text-lg"
+              className="w-full border rounded px-4 py-3 text-lg border-[#E7E7E7]"
               placeholder="What happened?"
             />
 
             {/* Row inputs */}
             <div className="flex gap-3">
-              <div className="flex items-center border px-3 py-2 rounded w-full">
+              <div className="flex items-center border border-[#E7E7E7] px-3 py-2 rounded w-full">
                 <FiMapPin className="mr-2 text-gray-400" />
                 <input
                   {...register("location")}
@@ -180,7 +182,7 @@ export default function CreateArticle() {
                 />
               </div>
 
-              <div className="flex items-center border px-3 py-2 rounded w-full">
+              <div className="flex items-center border border-[#E7E7E7] px-3 py-2 rounded w-full">
                 <FiCalendar className="mr-2 text-gray-400" />
                 <input
                   {...register("date")}
@@ -189,7 +191,7 @@ export default function CreateArticle() {
                 />
               </div>
 
-              <div className="flex items-center border px-3 py-2 rounded w-full">
+              <div className="flex items-center border border-[#E7E7E7] px-3 py-2 rounded w-full">
                 <FiTag className="mr-2 text-gray-400" />
                 <input
                   {...register("slug")}
@@ -202,7 +204,7 @@ export default function CreateArticle() {
             {/* Sub headline */}
             <input
               {...register("subHeadline")}
-              className="w-full border rounded px-4 py-2"
+              className="w-full border border-[#E7E7E7] rounded px-4 py-2"
               placeholder="Add quick context"
             />
 
@@ -258,7 +260,7 @@ export default function CreateArticle() {
               {images.map((img) => (
                 <div
                   key={img.id}
-                  className="relative group border rounded overflow-hidden"
+                  className="relative group border border-[#E7E7E7] rounded overflow-hidden"
                 >
                   <img src={img.preview} className="h-32 w-full object-cover" />
 
@@ -301,10 +303,10 @@ export default function CreateArticle() {
                 </div>
               ))}
             </div>
-           
+
             {/* Extra fields */}
             <div className="space-y-3">
-              <div className="flex items-center border rounded px-3 py-2">
+              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
                 <FiImage className="mr-2 text-gray-400" />
                 <input
                   placeholder="Add Images"
@@ -313,14 +315,14 @@ export default function CreateArticle() {
 
                 <div
                   {...getRootProps()}
-                  className="border-2 border-dashed p-6 rounded-lg text-center cursor-pointer"
+                  className="border-2 border-dashed border-[#b8b4b4] p-6 rounded-lg text-center cursor-pointer"
                 >
                   <input {...getInputProps()} />
                   Drag & drop images here
                 </div>
               </div>
 
-              <div className="flex items-center border rounded px-3 py-2">
+              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
                 <FiMessageSquare className="mr-2 text-gray-400" />
                 <input
                   placeholder="Add Quote"
@@ -328,7 +330,7 @@ export default function CreateArticle() {
                 />
               </div>
 
-              <div className="flex items-center border rounded px-3 py-2">
+              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
                 <FiHash className="mr-2 text-gray-400" />
                 <input
                   placeholder="Add Facts / Number"
@@ -336,7 +338,7 @@ export default function CreateArticle() {
                 />
               </div>
 
-              <div className="flex items-center border rounded px-3 py-2">
+              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
                 <FiLink className="mr-2 text-gray-400" />
                 <input placeholder="Source" className="w-full outline-none" />
               </div>
@@ -347,9 +349,9 @@ export default function CreateArticle() {
 
       {/* RIGHT SIDEBAR */}
 
-      <div className="hidden lg:block w-[340px] bg-white border-l p-6">
+      <div className="hidden lg:block w-[340px] bg-white border-l border-[#E7E7E7]">
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 p-6 border-b border-[#E7E7E7]">
           <button
             onClick={() => setActiveTab("metadata")}
             className={`px-4 py-2 text-sm rounded-md border ${
@@ -375,18 +377,18 @@ export default function CreateArticle() {
 
         {/* METADATA PANEL */}
         {activeTab === "metadata" && (
-          <div className="space-y-6">
+          <div className="space-y-6 p-6">
             <div>
               <span className="text-sm font-medium block mb-3">
                 Reported by
               </span>
 
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 p-2 border border-[#E7E7E7] rounded-xl">
                 <span>Breaking News</span>
 
                 <button
                   onClick={() => setBreaking(!breaking)}
-                  className={`w-10 h-5 rounded-full p-1 ${
+                  className={`w-10 h-5 rounded-full p-px ${
                     breaking ? "bg-[#861212]" : "bg-gray-300"
                   }`}
                 >
@@ -400,7 +402,7 @@ export default function CreateArticle() {
 
               <select
                 {...register("category")}
-                className="w-full border rounded px-3 py-2 mb-3"
+                className="w-full border border-[#E7E7E7] rounded-xl px-3 py-2 mb-3"
               >
                 <option>Select Category</option>
                 <option>Politics</option>
@@ -408,7 +410,7 @@ export default function CreateArticle() {
                 <option>World</option>
               </select>
 
-              <select className="w-full border rounded px-3 py-2 mb-3">
+              <select className="w-full border border-[#E7E7E7] rounded-xl px-3 py-2 mb-3">
                 <option>Select Sub Category</option>
               </select>
 
@@ -421,6 +423,7 @@ export default function CreateArticle() {
                     selected.map((s) => s.value),
                   )
                 }
+                className="rounded-xl"
               />
             </div>
 
@@ -434,7 +437,7 @@ export default function CreateArticle() {
             </div>
 
             {/* Checklist */}
-            <div className="border-t pt-4 text-sm space-y-2">
+            <div className="border-t border-[#E7E7E7] pt-4 text-sm space-y-2">
               <p>{hasImage ? "✔" : "○"} Image</p>
               <p>{hasLocation ? "✔" : "○"} Where?</p>
               <p>{hasDate ? "✔" : "○"} When?</p>
@@ -445,16 +448,14 @@ export default function CreateArticle() {
 
         {/* DISCUSSION PANEL */}
         {activeTab === "discussion" && (
-          <div className="space-y-4">
-            <h3 className="font-semibold">Discussion</h3>
-
+          <div className="space-y-4  p-6">
             <div className="bg-gray-50 p-3 rounded text-sm">
               <strong>Editor</strong>
               <p>Can you add photos from the flooding scene?</p>
             </div>
 
             <textarea
-              className="w-full border rounded px-3 py-2"
+              className="w-full border border-[#E7E7E7] rounded-xl px-3 py-2"
               placeholder="Reply..."
             />
 
