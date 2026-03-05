@@ -1,6 +1,11 @@
 import Link from "next/link";
 
 export default function AdminDashboard() {
+  const fetchNews = async () => {
+  const res = await fetch("/api/news");
+  const data = await res.json();
+  console.log(data);
+};
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-xl">

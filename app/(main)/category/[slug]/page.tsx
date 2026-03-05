@@ -2,9 +2,9 @@ import Container from "@/src/components/layout/Container";
 import ExploreMore from "@/src/components/sections/ExploreMore";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import politics from "../../../public/images/featured1.png";
-import poli from "../../../public/images/poli.png";
-import poli1 from "../../../public/images/poli1.png";
+import politics from "../../../../public/images/featured1.png";
+import poli from "../../../../public/images/poli.png";
+import poli1 from "../../../../public/images/poli1.png";
 import { MdArrowOutward } from "react-icons/md";
 
 export default async function CategoryPage({
@@ -19,10 +19,14 @@ export default async function CategoryPage({
   return (
     <Container>
       <div className="w-full mx-auto px-12 py-12">
+        <div>
+
         {/* Category Title */}
         <h1 className="text-[50px] font-bold text-[#212121] capitalize mb-10">
           {slug}
         </h1>
+        
+        </div>
 
         {/* Top 2 Featured */}
         <div className="grid md:grid-cols-2 gap-12 mb-20">
