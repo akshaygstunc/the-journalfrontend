@@ -2,44 +2,70 @@
 
 import AssignStoryModal from "../components/AssignStoryModal";
 import StatusTabs from "../components/StatusTabs";
-import StoryCard from "../components/StoryCard";
 import StoryPreviewDrawer from "../components/StoryPreviewDrawer";
 import { IoAddOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LuGrid2X2 } from "react-icons/lu";
 import { useUIStore } from "../lib/store/uiStore";
 import Pagination from "../components/Pagination";
-// import AssignStoryModal from "../components/AssignStoryModal";
-
-const mockStories = Array.from({ length: 9 }).map((_, i) => ({
-  id: i,
-  title: "Heavy Rains Causes Flooding in Mumbai",
-  description: "Flooding reported in mumbai and expected to worsen even more",
-  source: "REUTERS",
-  time: "3M AGO",
-  tag: ["featured", "breaking", "update"][i % 3],
-}));
+import { getCoverage, ignoreStory } from "@/src/services/news.service";
 
 export default function CoveragePage() {
   const router = useRouter();
+
+  const [stories, setStories] = useState<any[]>([]);
   const [view, setView] = useState<"grid" | "table">("grid");
   const [active, setActive] = useState("active");
+  const [status, setStatus] = useState("upcoming");
+
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(9);
+const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    loadStories();
+  }, [status]);
 
-  const totalPages = Math.ceil(mockStories.length / perPage);
+const loadStories = async () => {
+  try {
+    setLoading(true);
 
-  const paginatedStories = mockStories.slice(
+    const data = await getCoverage(status);
+
+    const formatted = data.map((item: any) => ({
+      id: item._id,
+      title: item.title,
+      description: item.summary || "",
+      source: item.source,
+      time: new Date(item.createdAt).toLocaleDateString(),
+      tag: "breaking",
+      raw: item,
+    }));
+
+    setStories(formatted);
+  } catch (err) {
+    console.error("Coverage fetch error", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const totalPages = Math.ceil(stories.length / perPage);
+
+  const paginatedStories = stories.slice(
     (page - 1) * perPage,
-    page * perPage,
+    page * perPage
   );
+
   return (
     <>
       <div className="flex justify-between items-center border-b p-4 bg-[#F6F6F6] border-[#E7E7E7]">
         <h1 className="text-3xl font-semibold mb-2">Coverage</h1>
+
         <div className="flex gap-3">
-          <button className="px-4 py-2 border rounded-md">Open User Box</button>
+          <button className="px-4 py-2 border rounded-md">
+            Open User Box
+          </button>
 
           <button
             type="submit"
@@ -52,11 +78,13 @@ export default function CoveragePage() {
           </button>
         </div>
       </div>
+
       <div className="bg-[#F6F6F6] min-h-screen p-6">
-        <StatusTabs />
+        <StatusTabs status={status} setStatus={setStatus} />
+
         {/* ACTIVE INACTIVE */}
         <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="">
+          <div>
             <button
               onClick={() => setActive("active")}
               className={`px-4 py-1 rounded cursor-pointer ${
@@ -82,16 +110,20 @@ export default function CoveragePage() {
 
           <div className="flex gap-3 items-center mt-4">
             <span className="text-[#6D6D6D]">Sort By</span>
+
             <input
               placeholder="Search here..."
-              className="border  rounded border-[#E7E7E7] px-4 py-2 w-64"
+              className="border rounded border-[#E7E7E7] px-4 py-2 w-64"
             />
+
             <select className="border px-3 py-2 rounded border-[#E7E7E7]">
               <option>Newest</option>
               <option>Oldest</option>
             </select>
 
-            <button className="border px-4 py-2 rounded border-[#E7E7E7]">Filter</button>
+            <button className="border px-4 py-2 rounded border-[#E7E7E7]">
+              Filter
+            </button>
 
             <button
               onClick={() => setView(view === "grid" ? "table" : "grid")}
@@ -101,16 +133,19 @@ export default function CoveragePage() {
             </button>
           </div>
         </div>
-        {/* VIEW SWITCH */}
-        {view === "grid" ? (
-          <GridView stories={paginatedStories} />
-        ) : (
-          <TableView stories={paginatedStories} />
-        )}
 
+        {/* VIEW SWITCH */}
+      {loading ? (
+  <GridSkeleton />
+) : view === "grid" ? (
+  <GridView stories={paginatedStories} reload={loadStories} />
+) : (
+  <TableView stories={paginatedStories} reload={loadStories} />
+)}
         <StoryPreviewDrawer />
-        
-        <AssignStoryModal />
+
+        <AssignStoryModal reload={loadStories} />
+
         <Pagination
           page={page}
           setPage={setPage}
@@ -122,6 +157,7 @@ export default function CoveragePage() {
     </>
   );
 }
+
 function Tag({ type }: { type: string }) {
   const styles: any = {
     featured: "bg-[#1ABCFE21] text-[#1791C3] font-semibold",
@@ -135,40 +171,51 @@ function Tag({ type }: { type: string }) {
     </span>
   );
 }
-function GridView({ stories }: any) {
-  const { handlePreview, handleAssign, handleIgnore } = useStoryActions();
+
+function GridView({ stories, reload }: any) {
+  const { handlePreview, handleAssign, handleIgnore } =
+    useStoryActions(reload);
 
   return (
-    <div className="grid grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {stories.map((story: any) => (
         <div
           key={story.id}
-          className="bg-white border border-[#E2E8F0] p-4 rounded-xl"
+          className="bg-white border border-[#E2E8F0] p-4 rounded-xl flex flex-col justify-between min-h-[200px] hover:shadow-md transition cursor-pointer"
           onClick={() => handlePreview(story)}
         >
-          <Tag type={story.tag} />
+          <div>
+            <Tag type={story.tag} />
 
-          <h3 className="mt-3 text-[18px] font-semibold text-[#212121]">
-            {story.title}
-          </h3>
+            <h3 className="mt-3 text-[18px] font-semibold text-[#212121] line-clamp-2 break-words">
+              {story.title}
+            </h3>
 
-          <p className="text-md text-[#6D6D6D] mt-2">{story.description}</p>
+            {story.description && (
+              <p className="text-sm text-[#6D6D6D] mt-2 line-clamp-2 break-words">
+                {story.description}
+              </p>
+            )}
 
-          <div className="text-xs mt-3 flex gap-2">
-            <span className="text-[#0727CC] font-medium border-r pr-2 border-[#E7E7E7]">
-              SOURCE: {story.source}
-            </span>
+            <div className="text-xs mt-3 flex gap-2">
+              <span className="text-[#0727CC] font-medium border-r pr-2 border-[#E7E7E7]">
+                SOURCE: {story.source}
+              </span>
 
-            <span className="text-gray-400">{story.time}</span>
+              <span className="text-gray-400">{story.time}</span>
+            </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-4 text-sm border-t pt-4 border-[#E7E7E7]">
-            <button className="text-gray-500" onClick={(e) => handleIgnore(e)}>
+          <div className="flex justify-end gap-3 mt-4 text-sm border-t pt-3 border-[#E7E7E7]">
+            <button
+              className="text-gray-500 hover:text-gray-700"
+              onClick={(e) => handleIgnore(e, story)}
+            >
               Ignore
             </button>
 
             <button
-              className="border border-[#E7E7E7] px-3 py-1 rounded-md"
+              className="border border-[#E7E7E7] px-3 py-1 rounded-md hover:bg-gray-50"
               onClick={(e) => handleAssign(e, story)}
             >
               Assign
@@ -180,8 +227,9 @@ function GridView({ stories }: any) {
   );
 }
 
-function TableView({ stories }: any) {
-  const { handlePreview, handleAssign, handleIgnore } = useStoryActions();
+function TableView({ stories, reload }: any) {
+  const { handlePreview, handleAssign, handleIgnore } =
+    useStoryActions(reload);
 
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden">
@@ -220,7 +268,7 @@ function TableView({ stories }: any) {
               <td>
                 <button
                   className="text-gray-500 px-4"
-                  onClick={(e) => handleIgnore(e)}
+                  onClick={(e) => handleIgnore(e, story)}
                 >
                   Ignore
                 </button>
@@ -240,22 +288,61 @@ function TableView({ stories }: any) {
   );
 }
 
-function useStoryActions() {
+function useStoryActions(reload: any) {
   const { openPreview, openAssign } = useUIStore();
 
   const handlePreview = (story: any) => {
     openPreview(story);
   };
 
-  const handleAssign = (e: React.MouseEvent<HTMLButtonElement>, story: any) => {
+  const handleAssign = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    story: any
+  ) => {
     e.stopPropagation();
     openAssign(story);
   };
 
-  const handleIgnore = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleIgnore = async (
+    e: React.MouseEvent<HTMLButtonElement>,
+    story: any
+  ) => {
     e.stopPropagation();
-    console.log("Story ignored");
+
+    try {
+      await ignoreStory(story.id);
+      reload();
+    } catch (err) {
+      console.error("Ignore error", err);
+    }
   };
 
   return { handlePreview, handleAssign, handleIgnore };
+}
+
+
+function GridSkeleton() {
+  return (
+    <div className="grid grid-cols-3 gap-6">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="bg-white border border-[#E2E8F0] p-4 rounded-xl animate-pulse"
+        >
+          <div className="w-16 h-5 bg-gray-200 rounded mb-3"></div>
+
+          <div className="h-5 bg-gray-200 rounded mb-2"></div>
+          <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+
+          <div className="h-4 bg-gray-200 rounded mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+
+          <div className="flex justify-between mt-4">
+            <div className="w-20 h-4 bg-gray-200 rounded"></div>
+            <div className="w-16 h-4 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
