@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Pagination from "../../components/Pagination";
 
 const articles = [
   {
@@ -57,22 +58,24 @@ const articles = [
   },
 ];
 
-export default function Page() {
+export default function Page( ) {
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+
+  const totalPages = Math.ceil(articles.length / perPage);
+
+  const paginatedData = articles.slice((page - 1) * perPage, page * perPage);
 
   return (
     <div className="p-6 bg-[#F6F6F6] min-h-screen">
-
       {/* FILTER BAR */}
       <div className="flex justify-between items-center mb-4">
-
         <input
           placeholder="Search here..."
           className="border border-[#E7E7E7] rounded px-4 py-2 w-64"
         />
 
         <div className="flex gap-3">
-
           <select className="border border-[#E7E7E7] rounded px-3 py-2">
             <option>Date</option>
           </select>
@@ -92,20 +95,16 @@ export default function Page() {
           <button className="border border-[#E7E7E7] px-4 py-2 rounded">
             Clear filters
           </button>
-
         </div>
       </div>
 
       {/* TABLE */}
       <div className="bg-white border border-[#E7E7E7] rounded-lg overflow-hidden">
-
         <table className="w-full text-sm">
-
           <thead className="bg-gray-50 text-left">
-
             <tr>
               <th className="p-4">
-                <input type="checkbox"/>
+                <input type="checkbox" />
               </th>
 
               <th className="p-4">Title</th>
@@ -122,43 +121,29 @@ export default function Page() {
 
               <th className="p-4">Source</th>
             </tr>
-
           </thead>
 
           <tbody>
-
             {articles.map((article) => (
-
-              <tr
-                key={article.id}
-                className="border-t border-[#E7E7E7]"
-              >
-
+              <tr key={article.id} className="border-t border-[#E7E7E7]">
                 <td className="p-4">
-                  <input type="checkbox"/>
+                  <input type="checkbox" />
                 </td>
 
                 {/* TITLE */}
                 <td className="p-4">
-
-                  <p className="font-medium text-[#212121]">
-                    {article.title}
-                  </p>
+                  <p className="font-medium text-[#212121]">{article.title}</p>
 
                   <p className="text-xs text-gray-500">
                     {article.revisions} Revisions
                   </p>
-
                 </td>
 
                 {/* CATEGORY */}
-                <td className="text-gray-600">
-                  {article.category}
-                </td>
+                <td className="text-gray-600">{article.category}</td>
 
                 {/* STATUS */}
                 <td>
-
                   <span
                     className={`px-2 py-1 rounded text-xs ${
                       article.status === "Published"
@@ -168,97 +153,44 @@ export default function Page() {
                   >
                     {article.status}
                   </span>
-
                 </td>
 
                 {/* DATE */}
                 <td className="text-gray-600">
-
                   <p>{article.publishDate}</p>
 
-                  <p className="text-xs text-gray-400">
-                    {article.time}
-                  </p>
-
+                  <p className="text-xs text-gray-400">{article.time}</p>
                 </td>
 
                 {/* VIEWS */}
-                <td className="text-green-700 font-medium">
-                  {article.views}
-                </td>
+                <td className="text-green-700 font-medium">{article.views}</td>
 
                 {/* AUTHOR */}
                 <td>
+                  <p className="font-medium">{article.author}</p>
 
-                  <p className="font-medium">
-                    {article.author}
-                  </p>
-
-                  <p className="text-xs text-gray-500">
-                    {article.role}
-                  </p>
-
+                  <p className="text-xs text-gray-500">{article.role}</p>
                 </td>
 
                 {/* SOURCE */}
-                <td className="text-gray-600">
-                  {article.source}
-                </td>
-
+                <td className="text-gray-600">{article.source}</td>
               </tr>
-
             ))}
-
           </tbody>
-
         </table>
-
       </div>
 
       {/* PAGINATION */}
 
       <div className="flex justify-between items-center mt-6">
-
-        <div className="flex gap-2">
-
-          {[1,2,3,4].map((p)=>(
-            <button
-              key={p}
-              onClick={()=>setPage(p)}
-              className={`border px-3 py-1 rounded ${
-                page === p ? "bg-gray-100" : ""
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-
-        </div>
-
-        <div className="flex items-center gap-4">
-
-          <span>Go to page:</span>
-
-          <input
-            className="border w-14 px-2 py-1 rounded"
-            placeholder="Number"
-          />
-
-          <button className="border px-3 py-1 rounded">
-            Go
-          </button>
-
-          <span>Results per page:</span>
-
-          <select className="border px-2 py-1 rounded">
-            <option>10</option>
-            <option>20</option>
-          </select>
-
-        </div>
-
+        <Pagination
+          page={page}
+          setPage={setPage}
+          totalPages={totalPages}
+          perPage={perPage}
+          setPerPage={setPerPage}
+        />
       </div>
-
     </div>
   );
 }
