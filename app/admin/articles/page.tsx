@@ -39,7 +39,9 @@ export default function CoveragePage() {
       <div className="flex justify-between items-center border-b p-4 bg-[#F6F6F6] border-[#E7E7E7]">
         <h1 className="text-3xl font-semibold mb-2">Coverage</h1>
         <div className="flex gap-3">
-          <button className="px-4 py-2 border rounded-md">Open User Box</button>
+          <button className="px-4 py-2 border rounded-md cursor-pointer"
+            onClick={() => router.push("/admin/articles/user-box")}
+          >Open User Box</button>
 
           <button
             type="submit"
