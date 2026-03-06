@@ -16,13 +16,11 @@ export default function AdminLogin() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ password }),
   });
-
   if (res.ok) {
     router.push("/admin");
   } else {
       router.push("/admin");
     setError("Invalid password");
-
   }
 };
 
