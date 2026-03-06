@@ -7,8 +7,6 @@ import { useEffect, useState } from "react";
 import slugify from "slugify";
 import { z } from "zod";
 import Select from "react-select";
-import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
 import {
   FiMapPin,
   FiCalendar,
@@ -18,37 +16,32 @@ import {
   FiHash,
   FiLink,
   FiSend,
+  FiAlertCircle,
 } from "react-icons/fi";
 import { useDropzone } from "react-dropzone";
-import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { createStory, saveDraft } from "@/src/services/news.service";
 import { useRouter } from "next/navigation";
 
+// Enhanced schema with all required fields
 const schema = z.object({
-  title: z.string().min(5),
+  title: z.string().min(5, "Title must be at least 5 characters"),
   subHeadline: z.string().optional(),
-  category: z.string().optional(),
-  location: z.string().optional(),
-  date: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  slug: z.string().optional(),
+  category: z.string().min(1, "Category is required"),
+  location: z.string().min(1, "Location is required"),
+  date: z.string().min(1, "Date is required"),
+  tags: z.array(z.string()).min(1, "At least one tag is required"),
+  slug: z.string().min(3, "Slug is required"),
 });
 
 type FormData = z.infer<typeof schema>;
+
 type ArticleImage = {
   id: string;
   file: File;
   preview: string;
-  caption?: string;
-  credit?: string;
+  caption: string;
+  credit: string;
   selected?: boolean;
-};
-type Comment = {
-  id: string;
-  author: string;
-  message: string;
-  createdAt: string;
 };
 
 export default function CreateArticle() {
@@ -59,11 +52,20 @@ export default function CreateArticle() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const selectedImages = images.filter((i) => i.selected);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [activeTab, setActiveTab] = useState<"metadata" | "discussion">(
-    "metadata",
-  );
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      tags: [],
+    },
+  });
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: { "image/*": [] },
@@ -76,80 +78,120 @@ export default function CreateArticle() {
         credit: "",
         selected: false,
       }));
-
       setImages((prev) => [...prev, ...files]);
     },
   });
 
-  const { register, handleSubmit, watch, setValue } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
-
   const title = watch("title");
+  const selectedImages = images.filter((i) => i.selected);
 
+  // Auto-generate slug from title
   useEffect(() => {
     if (title) {
       setValue("slug", slugify(title, { lower: true, strict: true }));
     }
   }, [title, setValue]);
-const values = watch();
 
-useEffect(() => {
-  const interval = setInterval(async () => {
-    if (!values.title && !content) return;
+  // Auto-save draft
+  const values = watch();
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (!values.title && !content) return;
 
-    setIsSavingDraft(true);
-
-    try {
-      await saveDraft({
-        title: values.title || "Untitled Draft",
-        slug:
-          values.slug ||
-          slugify(values.title || "untitled-draft", {
+      setIsSavingDraft(true);
+      try {
+        await saveDraft({
+          title: values.title || "Untitled Draft",
+          slug: values.slug || slugify(values.title || "untitled-draft", {
             lower: true,
             strict: true,
           }),
-        summary: values.subHeadline || "",
-        content: content || "",
-        category: values.category || "",
-        location: values.location || "",
-        tags: values.tags || [],
-        image: images?.[0]?.preview || "",
-        imageCaption: images?.[0]?.caption || "",
-        imageCredit: images?.[0]?.credit || "",
-        breaking: breaking,
-      });
+          summary: values.subHeadline || "",
+          content: content || "",
+          category: values.category || "",
+          location: values.location || "",
+          tags: values.tags || [],
+          image: images?.[0]?.preview || "",
+          imageCaption: images?.[0]?.caption || "",
+          imageCredit: images?.[0]?.credit || "",
+          breaking: breaking,
+        });
+        setLastSaved(new Date());
+      } catch (err) {
+        console.log("Draft save error", err);
+      } finally {
+        setIsSavingDraft(false);
+      }
+    }, 10000);
 
-      setLastSaved(new Date());
-    } catch (err) {
-      console.log("Draft save error", err);
-    } finally {
-      setIsSavingDraft(false);
+    return () => clearInterval(interval);
+  }, [values, content, images, breaking]);
+
+  // Validation before submission
+  const validateBeforeSubmit = (): boolean => {
+    const errors: string[] = [];
+
+    // Check images
+    if (images.length === 0) {
+      errors.push("Please upload at least one image");
     }
-  }, 10000);
 
-  return () => clearInterval(interval);
-}, [values, content, images, breaking]);
+    // Check each image has caption and credit
+    images.forEach((img, index) => {
+      if (!img.caption?.trim()) {
+        errors.push(`Image ${index + 1} is missing a caption`);
+      }
+      if (!img.credit?.trim()) {
+        errors.push(`Image ${index + 1} is missing credit information`);
+      }
+    });
+
+    // Check content
+    if (!content || content === "<p></p>") {
+      errors.push("Please add content to the story");
+    }
+
+    setValidationErrors(errors);
+    return errors.length === 0;
+  };
+
   const onSubmit = async (data: FormData) => {
+    // Clear previous errors
+    setValidationErrors([]);
+
+    // Run validation
+    if (!validateBeforeSubmit()) {
+      // Scroll to top to show errors
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     setIsSubmitting(true);
+
     try {
+      // Prepare payload matching backend structure exactly
       const payload = {
         title: data.title,
         slug: data.slug || slugify(data.title, { lower: true, strict: true }),
         summary: data.subHeadline || "",
         content: content,
-        category: data.category || "",
-        location: data.location || "",
-        tags: data.tags || [],
+        category: data.category,
+        location: data.location,
+        tags: data.tags,
         breaking: breaking,
-        image: images?.[0]?.preview || "",
-        imageCaption: images?.[0]?.caption || "",
-        imageCredit: images?.[0]?.credit || "",
+        images: images.map((img) => ({
+          url: img.preview, // Note: This should be the uploaded URL, not preview
+          caption: img.caption,
+          credit: img.credit,
+        })),
         author: "admin",
-        publishedAt: data.date || new Date().toISOString(),
+        publishedAt: data.date,
       };
 
+      console.log("Submitting payload:", payload); // For debugging
       await createStory(payload);
+      
+      // Success - redirect
       router.push("/admin/articles");
     } catch (error) {
       console.error("Error creating story:", error);
@@ -163,21 +205,27 @@ useEffect(() => {
     { value: "economy", label: "Economy" },
     { value: "investment", label: "Investment" },
     { value: "stock", label: "Stock" },
+    { value: "politics", label: "Politics" },
+    { value: "technology", label: "Technology" },
   ];
 
+  // Calculate completion stats
   const bodyText = content.replace(/<[^>]+>/g, "");
-
   const headlineChars = watch("title")?.length || 0;
   const bodyChars = bodyText.length;
   const hasImage = images.length > 0;
+  const allImagesHaveMetadata = images.every(img => img.caption && img.credit);
   const hasLocation = !!watch("location");
   const hasDate = !!watch("date");
   const hasSlug = !!watch("slug");
+  const hasCategory = !!watch("category");
+  const hasTags = (watch("tags")?.length || 0) > 0;
 
   return (
     <div className="flex w-full min-h-screen bg-[#F4F4F4]">
       {/* LEFT CONTENT */}
       <div className="flex-1">
+        {/* Header */}
         <div className="flex justify-between items-center mb-6 bg-white p-6 border-b border-[#E7E7E7]">
           <div>
             <h2 className="text-xl font-semibold">
@@ -218,82 +266,125 @@ useEffect(() => {
           </button>
         </div>
 
+        {/* Validation Errors Banner */}
+        {validationErrors.length > 0 && (
+          <div className="max-w-4xl mx-auto mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-red-800 mb-2">
+              <FiAlertCircle className="text-lg" />
+              <h3 className="font-semibold">Please fix the following errors:</h3>
+            </div>
+            <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+              {validationErrors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Main Form */}
         <div className="max-w-4xl mx-auto bg-white rounded-xl p-8 shadow-sm">
-          {/* FORM */}
           <form
             id="articleForm"
             onSubmit={handleSubmit(onSubmit)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
-                e.preventDefault();
-              }
-            }}
             className="space-y-6"
           >
-            {/* Headline */}
-            <input
-              {...register("title")}
-              className="w-full border rounded px-4 py-3 text-lg border-[#E7E7E7] focus:outline-none focus:ring-2 focus:ring-[#861212] focus:border-transparent"
-              placeholder="What happened?"
-              disabled={isSubmitting}
-            />
+            {/* Headline with error */}
+            <div>
+              <input
+                {...register("title")}
+                className={`w-full border rounded px-4 py-3 text-lg ${
+                  errors.title ? "border-red-500" : "border-[#E7E7E7]"
+                } focus:outline-none focus:ring-2 focus:ring-[#861212] focus:border-transparent`}
+                placeholder="What happened? *"
+                disabled={isSubmitting}
+              />
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+              )}
+            </div>
 
             {/* Row inputs */}
             <div className="flex gap-3">
-              <div className="flex items-center border border-[#E7E7E7] px-3 py-2 rounded w-full focus-within:ring-2 focus-within:ring-[#861212] focus-within:border-transparent">
-                <FiMapPin className="mr-2 text-gray-400" />
-                <input
-                  {...register("location")}
-                  placeholder="Where?"
-                  className="outline-none w-full"
-                  disabled={isSubmitting}
-                />
+              <div className="flex-1">
+                <div className={`flex items-center border ${
+                  errors.location ? "border-red-500" : "border-[#E7E7E7]"
+                } px-3 py-2 rounded focus-within:ring-2 focus-within:ring-[#861212]`}>
+                  <FiMapPin className="mr-2 text-gray-400" />
+                  <input
+                    {...register("location")}
+                    placeholder="Where? *"
+                    className="outline-none w-full"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                {errors.location && (
+                  <p className="text-red-500 text-sm mt-1">{errors.location.message}</p>
+                )}
               </div>
 
-              <div className="flex items-center border border-[#E7E7E7] px-3 py-2 rounded w-full focus-within:ring-2 focus-within:ring-[#861212] focus-within:border-transparent">
-                <FiCalendar className="mr-2 text-gray-400" />
-                <input
-                  {...register("date")}
-                  type="date"
-                  placeholder="When?"
-                  className="outline-none w-full"
-                  disabled={isSubmitting}
-                />
+              <div className="flex-1">
+                <div className={`flex items-center border ${
+                  errors.date ? "border-red-500" : "border-[#E7E7E7]"
+                } px-3 py-2 rounded focus-within:ring-2 focus-within:ring-[#861212]`}>
+                  <FiCalendar className="mr-2 text-gray-400" />
+                  <input
+                    {...register("date")}
+                    type="date"
+                    placeholder="When? *"
+                    className="outline-none w-full"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                {errors.date && (
+                  <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
+                )}
               </div>
 
-              <div className="flex items-center border border-[#E7E7E7] px-3 py-2 rounded w-full focus-within:ring-2 focus-within:ring-[#861212] focus-within:border-transparent">
-                <FiTag className="mr-2 text-gray-400" />
-                <input
-                  {...register("slug")}
-                  placeholder="What's Slug?"
-                  className="outline-none w-full"
-                  disabled={isSubmitting}
-                />
+              <div className="flex-1">
+                <div className={`flex items-center border ${
+                  errors.slug ? "border-red-500" : "border-[#E7E7E7]"
+                } px-3 py-2 rounded focus-within:ring-2 focus-within:ring-[#861212]`}>
+                  <FiTag className="mr-2 text-gray-400" />
+                  <input
+                    {...register("slug")}
+                    placeholder="Slug *"
+                    className="outline-none w-full"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                {errors.slug && (
+                  <p className="text-red-500 text-sm mt-1">{errors.slug.message}</p>
+                )}
               </div>
             </div>
 
             {/* Sub headline */}
             <input
               {...register("subHeadline")}
-              className="w-full border border-[#E7E7E7] rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#861212] focus:border-transparent"
-              placeholder="Add quick context"
+              className="w-full border border-[#E7E7E7] rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#861212]"
+              placeholder="Add quick context (optional)"
               disabled={isSubmitting}
             />
 
-            {/* Editor */}
-            <RichTextEditor value={content} onChange={setContent} />
+            {/* Content Editor */}
+            <div>
+              <RichTextEditor value={content} onChange={setContent} />
+              {!content || content === "<p></p>" ? (
+                <p className="text-red-500 text-sm mt-1">Content is required</p>
+              ) : null}
+            </div>
 
+            {/* Image Selection Controls */}
             {selectedImages.length > 0 && (
               <div className="flex items-center gap-4 bg-gray-100 p-3 rounded text-sm">
                 <span>{selectedImages.length} images selected</span>
-
                 <button
                   type="button"
                   onClick={() => {
-                    const caption = prompt("Enter caption");
+                    const caption = prompt("Enter caption for selected images");
                     if (caption !== null) {
                       setImages((prev) =>
-                        prev.map((i) => (i.selected ? { ...i, caption } : i)),
+                        prev.map((i) => (i.selected ? { ...i, caption } : i))
                       );
                     }
                   }}
@@ -302,14 +393,13 @@ useEffect(() => {
                 >
                   Add Caption
                 </button>
-
                 <button
                   type="button"
                   onClick={() => {
-                    const credit = prompt("Enter credit");
+                    const credit = prompt("Enter credit for selected images");
                     if (credit !== null) {
                       setImages((prev) =>
-                        prev.map((i) => (i.selected ? { ...i, credit } : i)),
+                        prev.map((i) => (i.selected ? { ...i, credit } : i))
                       );
                     }
                   }}
@@ -318,7 +408,6 @@ useEffect(() => {
                 >
                   Give Credit
                 </button>
-
                 <button
                   type="button"
                   onClick={() =>
@@ -332,6 +421,7 @@ useEffect(() => {
               </div>
             )}
 
+            {/* Image Grid */}
             <div className="grid grid-cols-3 gap-4">
               {images.map((img) => (
                 <div
@@ -343,21 +433,19 @@ useEffect(() => {
                     className="h-32 w-full object-cover"
                     alt={img.caption || "Upload preview"}
                   />
-
                   <input
                     type="checkbox"
                     checked={img.selected}
                     onChange={() =>
                       setImages((prev) =>
                         prev.map((i) =>
-                          i.id === img.id ? { ...i, selected: !i.selected } : i,
-                        ),
+                          i.id === img.id ? { ...i, selected: !i.selected } : i
+                        )
                       )
                     }
                     className="absolute top-2 left-2 w-4 h-4 cursor-pointer"
                     disabled={isSubmitting}
                   />
-
                   <button
                     type="button"
                     onClick={() =>
@@ -368,86 +456,79 @@ useEffect(() => {
                   >
                     ✕
                   </button>
-
                   <input
-                    placeholder="Caption"
+                    placeholder="Caption *"
                     value={img.caption}
                     onChange={(e) =>
                       setImages((prev) =>
                         prev.map((i) =>
-                          i.id === img.id
-                            ? { ...i, caption: e.target.value }
-                            : i,
-                        ),
+                          i.id === img.id ? { ...i, caption: e.target.value } : i
+                        )
                       )
                     }
-                    className="w-full border-t text-xs p-1 focus:outline-none focus:ring-1 focus:ring-[#861212]"
+                    className={`w-full border-t text-xs p-1 focus:outline-none focus:ring-1 focus:ring-[#861212] ${
+                      !img.caption ? "border-red-300 bg-red-50" : ""
+                    }`}
+                    disabled={isSubmitting}
+                  />
+                  <input
+                    placeholder="Credit *"
+                    value={img.credit}
+                    onChange={(e) =>
+                      setImages((prev) =>
+                        prev.map((i) =>
+                          i.id === img.id ? { ...i, credit: e.target.value } : i
+                        )
+                      )
+                    }
+                    className={`w-full border-t text-xs p-1 focus:outline-none focus:ring-1 focus:ring-[#861212] ${
+                      !img.credit ? "border-red-300 bg-red-50" : ""
+                    }`}
                     disabled={isSubmitting}
                   />
                 </div>
               ))}
             </div>
 
-            {/* Extra fields */}
+            {/* Image Upload */}
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed border-[#b8b4b4] p-6 rounded-lg text-center cursor-pointer hover:border-[#861212] transition-colors ${
+                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <input {...getInputProps()} disabled={isSubmitting} />
+              <FiImage className="mx-auto text-3xl text-gray-400 mb-2" />
+              <p className="text-sm text-gray-600">
+                Drag & drop images here, or click to select *
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Supported: JPG, PNG, GIF (Caption and Credit required for each)
+              </p>
+            </div>
+
+            {/* Extra optional fields */}
             <div className="space-y-3">
-              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2 focus-within:ring-2 focus-within:ring-[#861212] focus-within:border-transparent">
-                <FiImage className="mr-2 text-gray-400" />
-                <input
-                  placeholder="Image Credit (optional)"
-                  className="w-full outline-none"
-                  disabled={isSubmitting}
-                  onChange={(e) => {
-                    if (images.length > 0) {
-                      setImages((prev) =>
-                        prev.map((img, index) =>
-                          index === 0
-                            ? { ...img, credit: e.target.value }
-                            : img,
-                        ),
-                      );
-                    }
-                  }}
-                />
-              </div>
-
-              <div
-                {...getRootProps()}
-                className={`border-2 border-dashed border-[#b8b4b4] p-6 rounded-lg text-center cursor-pointer hover:border-[#861212] transition-colors ${
-                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                <input {...getInputProps()} disabled={isSubmitting} />
-                <FiImage className="mx-auto text-3xl text-gray-400 mb-2" />
-                <p className="text-sm text-gray-600">
-                  Drag & drop images here, or click to select
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Supported: JPG, PNG, GIF
-                </p>
-              </div>
-
-              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2 focus-within:ring-2 focus-within:ring-[#861212] focus-within:border-transparent">
+              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
                 <FiMessageSquare className="mr-2 text-gray-400" />
                 <input
-                  placeholder="Add Quote"
+                  placeholder="Add Quote (optional)"
                   className="w-full outline-none"
                   disabled={isSubmitting}
                 />
               </div>
-
-              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2 focus-within:ring-2 focus-within:ring-[#861212] focus-within:border-transparent">
+              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
                 <FiHash className="mr-2 text-gray-400" />
                 <input
-                  placeholder="Add Facts / Number"
+                  placeholder="Add Facts / Number (optional)"
                   className="w-full outline-none"
                   disabled={isSubmitting}
                 />
               </div>
-
-              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2 focus-within:ring-2 focus-within:ring-[#861212] focus-within:border-transparent">
+              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
                 <FiLink className="mr-2 text-gray-400" />
                 <input
-                  placeholder="Source URL"
+                  placeholder="Source URL (optional)"
                   className="w-full outline-none"
                   disabled={isSubmitting}
                 />
@@ -459,171 +540,123 @@ useEffect(() => {
 
       {/* RIGHT SIDEBAR */}
       <div className="hidden lg:block w-[340px] bg-white border-l border-[#E7E7E7]">
-        {/* Tabs */}
-        <div className="flex gap-2 p-6 border-b border-[#E7E7E7]">
-          <button
-            type="button"
-            onClick={() => setActiveTab("metadata")}
-            className={`px-4 py-2 text-sm rounded-md border transition-colors ${
-              activeTab === "metadata"
-                ? "bg-gray-100 border-gray-300"
-                : "bg-white border-gray-200 hover:bg-gray-50"
-            }`}
-            disabled={isSubmitting}
-          >
-            Metadata
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("discussion")}
-            className={`px-4 py-2 text-sm rounded-md border transition-colors ${
-              activeTab === "discussion"
-                ? "bg-gray-100 border-gray-300"
-                : "bg-white border-gray-200 hover:bg-gray-50"
-            }`}
-            disabled={isSubmitting}
-          >
-            Discussion
-          </button>
-        </div>
-
-        {/* METADATA PANEL */}
-        {activeTab === "metadata" && (
-          <div className="space-y-6 p-6">
-            <div>
-              <span className="text-sm font-medium block mb-3">
-                Story Settings
-              </span>
-
-              <div className="flex items-center justify-between mb-4 p-3 border border-[#E7E7E7] rounded-xl">
-                <span className="text-sm">Breaking News</span>
-
-                <button
-                  type="button"
-                  onClick={() => setBreaking(!breaking)}
-                  className={`w-10 h-5 rounded-full p-px transition-colors ${
-                    breaking ? "bg-[#861212]" : "bg-gray-300"
-                  }`}
-                  disabled={isSubmitting}
-                >
-                  <div
-                    className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                      breaking ? "translate-x-5" : ""
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <select
-                {...register("category")}
-                className="w-full border border-[#E7E7E7] rounded-xl px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-[#861212] focus:border-transparent"
-                disabled={isSubmitting}
-              >
-                <option value="">Select Category</option>
-                <option value="politics">Politics</option>
-                <option value="business">Business</option>
-                <option value="world">World</option>
-                <option value="technology">Technology</option>
-                <option value="sports">Sports</option>
-                <option value="entertainment">Entertainment</option>
-              </select>
-
-              <select
-                className="w-full border border-[#E7E7E7] rounded-xl px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-[#861212] focus:border-transparent"
-                disabled={isSubmitting}
-              >
-                <option value="">Select Sub Category</option>
-                <option value="local">Local</option>
-                <option value="national">National</option>
-                <option value="international">International</option>
-              </select>
-
-              <Select
-                isMulti
-                options={tagOptions}
-                onChange={(selected) =>
-                  setValue(
-                    "tags",
-                    selected.map((s) => s.value),
-                  )
-                }
-                className="rounded-xl"
-                placeholder="Select tags..."
-                isDisabled={isSubmitting}
-              />
-            </div>
-
-            {/* Stats */}
-            <div className="text-sm space-y-2 bg-gray-50 p-4 rounded-xl">
-              <p className="font-medium">Content Stats</p>
-              <div className="flex justify-between">
-                <span>Headline:</span>
-                <span className="font-mono">{headlineChars} chars</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Body:</span>
-                <span className="font-mono">{bodyChars} chars</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Images:</span>
-                <span className="font-mono">{images.length}</span>
-              </div>
-            </div>
-
-            {/* Checklist */}
-            <div className="border-t border-[#E7E7E7] pt-4">
-              <p className="text-sm font-medium mb-3">Required Items</p>
-              <div className="text-sm space-y-2">
-                <p className={hasImage ? "text-green-600" : "text-gray-500"}>
-                  {hasImage ? "✔" : "○"} Image
-                </p>
-                <p className={hasLocation ? "text-green-600" : "text-gray-500"}>
-                  {hasLocation ? "✔" : "○"} Location
-                </p>
-                <p className={hasDate ? "text-green-600" : "text-gray-500"}>
-                  {hasDate ? "✔" : "○"} Date
-                </p>
-                <p className={hasSlug ? "text-green-600" : "text-gray-500"}>
-                  {hasSlug ? "✔" : "○"} Slug
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* DISCUSSION PANEL */}
-        {activeTab === "discussion" && (
-          <div className="space-y-4 p-6">
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 bg-[#861212] rounded-full flex items-center justify-center text-white text-xs">
-                  E
-                </div>
-                <strong className="text-sm">Editor</strong>
-                <span className="text-xs text-gray-500">2 hours ago</span>
-              </div>
-              <p className="text-sm">
-                Can you add photos from the flooding scene?
-              </p>
-            </div>
-
-            <textarea
-              className="w-full border border-[#E7E7E7] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#861212] focus:border-transparent"
-              placeholder="Write a reply..."
-              rows={4}
-              disabled={isSubmitting}
-            />
-
-            <button
-              type="button"
-              className="w-full bg-[#861212] text-white px-4 py-2 rounded-xl text-sm hover:bg-[#6a0e0e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        <div className="p-6 space-y-6">
+          {/* Category Selection */}
+          <div>
+            <label className="text-sm font-medium block mb-3">
+              Category *
+            </label>
+            <select
+              {...register("category")}
+              className={`w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#861212] ${
+                errors.category ? "border-red-500" : "border-[#E7E7E7]"
+              }`}
               disabled={isSubmitting}
             >
-              Send Reply
+              <option value="">Select Category</option>
+              <option value="politics">Politics</option>
+              <option value="business">Business</option>
+              <option value="world">World</option>
+              <option value="technology">Technology</option>
+              <option value="sports">Sports</option>
+              <option value="entertainment">Entertainment</option>
+            </select>
+            {errors.category && (
+              <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
+            )}
+          </div>
+
+          {/* Tags Selection */}
+          <div>
+            <label className="text-sm font-medium block mb-3">
+              Tags *
+            </label>
+            <Select
+              isMulti
+              options={tagOptions}
+              onChange={(selected) =>
+                setValue(
+                  "tags",
+                  selected.map((s) => s.value),
+                  { shouldValidate: true }
+                )
+              }
+              className={`rounded-xl ${errors.tags ? "border-red-500" : ""}`}
+              placeholder="Select tags..."
+              isDisabled={isSubmitting}
+            />
+            {errors.tags && (
+              <p className="text-red-500 text-sm mt-1">{errors.tags.message}</p>
+            )}
+          </div>
+
+          {/* Breaking News Toggle */}
+          <div className="flex items-center justify-between p-3 border border-[#E7E7E7] rounded-xl">
+            <span className="text-sm font-medium">Breaking News</span>
+            <button
+              type="button"
+              onClick={() => setBreaking(!breaking)}
+              className={`w-10 h-5 rounded-full p-px transition-colors ${
+                breaking ? "bg-[#861212]" : "bg-gray-300"
+              }`}
+              disabled={isSubmitting}
+            >
+              <div
+                className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                  breaking ? "translate-x-5" : ""
+                }`}
+              />
             </button>
           </div>
-        )}
+
+          {/* Content Stats */}
+          <div className="text-sm space-y-2 bg-gray-50 p-4 rounded-xl">
+            <p className="font-medium">Content Stats</p>
+            <div className="flex justify-between">
+              <span>Headline:</span>
+              <span className="font-mono">{headlineChars} chars</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Body:</span>
+              <span className="font-mono">{bodyChars} chars</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Images:</span>
+              <span className="font-mono">{images.length}</span>
+            </div>
+          </div>
+
+          {/* Validation Checklist */}
+          <div className="border-t border-[#E7E7E7] pt-4">
+            <p className="text-sm font-medium mb-3">Required Items Checklist</p>
+            <div className="text-sm space-y-2">
+              <p className={hasImage ? "text-green-600" : "text-red-500"}>
+                {hasImage ? "✔" : "○"} At least one image
+              </p>
+              <p className={allImagesHaveMetadata ? "text-green-600" : "text-red-500"}>
+                {allImagesHaveMetadata ? "✔" : "○"} All images have caption & credit
+              </p>
+              <p className={hasCategory ? "text-green-600" : "text-red-500"}>
+                {hasCategory ? "✔" : "○"} Category selected
+              </p>
+              <p className={hasLocation ? "text-green-600" : "text-red-500"}>
+                {hasLocation ? "✔" : "○"} Location
+              </p>
+              <p className={hasDate ? "text-green-600" : "text-red-500"}>
+                {hasDate ? "✔" : "○"} Date
+              </p>
+              <p className={hasSlug ? "text-green-600" : "text-red-500"}>
+                {hasSlug ? "✔" : "○"} Slug
+              </p>
+              <p className={hasTags ? "text-green-600" : "text-red-500"}>
+                {hasTags ? "✔" : "○"} At least one tag
+              </p>
+              <p className={content && content !== "<p></p>" ? "text-green-600" : "text-red-500"}>
+                {content && content !== "<p></p>" ? "✔" : "○"} Content
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

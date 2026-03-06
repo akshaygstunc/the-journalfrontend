@@ -21,41 +21,38 @@ export default function CoveragePage() {
 
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(9);
-const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     loadStories();
   }, [status]);
 
-const loadStories = async () => {
-  try {
-    setLoading(true);
+  const loadStories = async () => {
+    try {
+      setLoading(true);
 
-    const data = await getCoverage(status);
+      const data = await getCoverage(status);
 
-    const formatted = data.map((item: any) => ({
-      id: item._id,
-      title: item.title,
-      description: item.summary || "",
-      source: item.source,
-      time: new Date(item.createdAt).toLocaleDateString(),
-      tag: "breaking",
-      raw: item,
-    }));
+      const formatted = data.map((item: any) => ({
+        id: item._id,
+        title: item.title,
+        description: item.summary || "",
+        source: item.source,
+        time: new Date(item.createdAt).toLocaleDateString(),
+        tag: "breaking",
+        raw: item,
+      }));
 
-    setStories(formatted);
-  } catch (err) {
-    console.error("Coverage fetch error", err);
-  } finally {
-    setLoading(false);
-  }
-};
+      setStories(formatted);
+    } catch (err) {
+      console.error("Coverage fetch error", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const totalPages = Math.ceil(stories.length / perPage);
 
-  const paginatedStories = stories.slice(
-    (page - 1) * perPage,
-    page * perPage
-  );
+  const paginatedStories = stories.slice((page - 1) * perPage, page * perPage);
 
   return (
     <>
@@ -63,9 +60,12 @@ const loadStories = async () => {
         <h1 className="text-3xl font-semibold mb-2">Coverage</h1>
 
         <div className="flex gap-3">
-          <button className="px-4 py-2 border rounded-md cursor-pointer"
+          <button
+            className="px-4 py-2 border rounded-md cursor-pointer"
             onClick={() => router.push("/admin/articles/user-box")}
-          >Open User Box</button>
+          >
+            Open User Box
+          </button>
 
           <button
             type="submit"
@@ -135,13 +135,13 @@ const loadStories = async () => {
         </div>
 
         {/* VIEW SWITCH */}
-      {loading ? (
-  <GridSkeleton />
-) : view === "grid" ? (
-  <GridView stories={paginatedStories} reload={loadStories} />
-) : (
-  <TableView stories={paginatedStories} reload={loadStories} />
-)}
+        {loading ? (
+          <GridSkeleton />
+        ) : view === "grid" ? (
+          <GridView stories={paginatedStories} reload={loadStories} />
+        ) : (
+          <TableView stories={paginatedStories} reload={loadStories} />
+        )}
         <StoryPreviewDrawer />
 
         <AssignStoryModal reload={loadStories} />
@@ -173,8 +173,7 @@ function Tag({ type }: { type: string }) {
 }
 
 function GridView({ stories, reload }: any) {
-  const { handlePreview, handleAssign, handleIgnore } =
-    useStoryActions(reload);
+  const { handlePreview, handleAssign, handleIgnore } = useStoryActions(reload);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -228,8 +227,7 @@ function GridView({ stories, reload }: any) {
 }
 
 function TableView({ stories, reload }: any) {
-  const { handlePreview, handleAssign, handleIgnore } =
-    useStoryActions(reload);
+  const { handlePreview, handleAssign, handleIgnore } = useStoryActions(reload);
 
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden">
@@ -295,17 +293,14 @@ function useStoryActions(reload: any) {
     openPreview(story);
   };
 
-  const handleAssign = (
-    e: React.MouseEvent<HTMLButtonElement>,
-    story: any
-  ) => {
+  const handleAssign = (e: React.MouseEvent<HTMLButtonElement>, story: any) => {
     e.stopPropagation();
     openAssign(story);
   };
 
   const handleIgnore = async (
     e: React.MouseEvent<HTMLButtonElement>,
-    story: any
+    story: any,
   ) => {
     e.stopPropagation();
 
@@ -319,7 +314,6 @@ function useStoryActions(reload: any) {
 
   return { handlePreview, handleAssign, handleIgnore };
 }
-
 
 function GridSkeleton() {
   return (
