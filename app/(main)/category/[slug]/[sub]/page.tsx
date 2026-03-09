@@ -1,22 +1,95 @@
-import HorizontalCard from "@/src/components/cards/HorizontalCard";
-import Container from "@/src/components/layout/Container";
+"use client";
+
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getNewsById } from "@/src/lib/api/news";
+import Image from "next/image";
 
 export default function CategorySubPage() {
+  const params = useParams();
+
+  const id = params.sub as string; // article id
+  const slug = params.slug as string;
+
+  const [news, setNews] = useState<any>(null);
+
+  useEffect(() => {
+    if (!id) return;
+
+    loadNews();
+  }, [id]);
+
+  const loadNews = async () => {
+    const data = await getNewsById(id);
+
+    setNews(data);
+  };
+
+  if (!news) return <div>Loading...</div>;
+
   return (
-    <Container>
-      <h2 className="text-3xl font-serif font-bold mt-10">Politics</h2>
+    <article className="bg-[#F9F6F3] py-10 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Category */}
+        <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">
+          {news.category}
+        </p>
 
-      <div className="grid md:grid-cols-2 gap-8 mt-8">
-        <HorizontalCard />
-        <HorizontalCard />
-      </div>
+        {/* Title */}
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4">
+          {news.title}
+        </h1>
 
-      <h3 className="text-2xl font-semibold mt-14">Explore More</h3>
-      <div className="space-y-6 mt-6">
-        <HorizontalCard />
-        <HorizontalCard />
-        <HorizontalCard />
+        {/* Summary */}
+        <p className="text-lg text-gray-600 mb-6">{news.summary}</p>
+
+        {/* Image */}
+        <div className="relative w-full h-80 mb-6 rounded-lg overflow-hidden">
+          <Image src={news.image} alt={news.title} width={1200} height={800} />
+        </div>
+
+        {/* Meta */}
+        <div className="flex items-center gap-4 text-sm text-gray-500 mb-8 border-b pb-4">
+          <span>Source: {news.source}</span>
+          <span>•</span>
+          <span>{new Date(news.publishedAt).toLocaleDateString()}</span>
+        </div>
+
+        {/* Content */}
+        <div className="prose prose-lg max-w-none text-gray-800">
+          {news.content.split("\n").map((para: string, i: number) => (
+            <p key={i}>{para}</p>
+          ))}
+        </div>
+
+        {/* Tags */}
+        {news.tags?.length > 0 && (
+          <div className="mt-10">
+            <h3 className="font-semibold mb-3">Tags</h3>
+            <div className="flex flex-wrap gap-2">
+              {news.tags.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 bg-gray-200 rounded-full text-sm"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Source link */}
+        <div className="mt-8 border-t pt-6">
+          <a
+            href={news.sourceUrl}
+            target="_blank"
+            className="text-blue-600 hover:underline"
+          >
+            Read original article
+          </a>
+        </div>
       </div>
-    </Container>
+    </article>
   );
 }

@@ -1,3 +1,4 @@
+"use client";
 import Container from "@/src/components/layout/Container";
 import { SectionHeader } from "@/src/components/SectionHeader";
 import Image from "next/image";
@@ -15,6 +16,8 @@ import mw1 from "../../public/images/mw1.png";
 import mw2 from "../../public/images/mw2.png";
 import mw3 from "../../public/images/mw3.png";
 import mw4 from "../../public/images/mw4.png";
+import { useEffect, useState } from "react";
+import { getNewsByCategory } from "@/src/lib/api/news";
 
 // data/homeData.ts
 
@@ -63,12 +66,15 @@ export const alsoNews = Array(6).fill({
     "The new Netflix show looks like an ambitious BBC documentary...",
 });
 export default function Home() {
+
+
   return (
     <Container>
       <div className="bg-[#f5f5f5a9] min-h-screen font-sans">
         <div className="w-full mx-auto mt-12 space-y-20">
           {/* HERO SECTION */}
           <div className="grid lg:grid-cols-3 md:grid-cols-1 gap-10">
+            
             <div className="lg:col-span-2 px-4 lg:px-0">
               <div className="bg-gray-300 h-131.5 rounded-md" />
 
