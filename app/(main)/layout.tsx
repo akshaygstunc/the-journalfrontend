@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Footer from "@/src/components/layout/Footer";
 import Navbar from "@/src/components/layout/Navbar";
+import ToastProvider from "../admin/components/ToastProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,9 +26,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} font-sans antialiased bg-[#F9F6F3] text-gray-900`}
       >
+      
         <Navbar />
         <main className="min-h-screen">{children}</main>
         <Footer />
+
       </body>
     </html>
   );
