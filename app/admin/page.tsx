@@ -33,22 +33,22 @@ const quickLinks = [
 ];
 
 export default function AdminDashboard() {
-  const [news, setNews] = useState([]);
+  // const [news, setNews] = useState([]);
 
-  const fetchNews = async () => {
-    try {
-      const res = await fetch("/api/news");
-      const data = await res.json();
-      setNews(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // const fetchNews = async () => {
+  //   try {
+  //     const res = await fetch("/api/news");
+  //     const data = await res.json();
+  //     setNews(data);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchNews();
-  }, []);
-
+  // useEffect(() => {
+  //   fetchNews();
+  // }, []);
+ 
   return (
     <div className="p-6 bg-[#F6F6F6] min-h-screen">
 
@@ -171,7 +171,7 @@ export default function AdminDashboard() {
 
           <tbody>
 
-            {news.slice(0, 5).map((item: any, index) => (
+            {/* {news.slice(0, 5).map((item: any, index) => (
 
               <tr
                 key={index}
@@ -194,7 +194,7 @@ export default function AdminDashboard() {
 
               </tr>
 
-            ))}
+            ))} */}
 
           </tbody>
 
