@@ -34,6 +34,23 @@ export default function CategoryPage() {
   const side2 = news[4];
 
   if (!slug) return notFound();
+  function formatDate(dateString: string) {
+  const date = new Date(dateString);
+
+  const datePart = date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const timePart = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return `${datePart} • ${timePart}`;
+}
   return (
     <Container>
       <div className="w-full mx-auto p-6 md:p-12">
@@ -65,7 +82,7 @@ export default function CategoryPage() {
                 </h2>
 
                 <p className="text-xs text-[#4F4F4F] mb-4 tracking-wide">
-                  ● {hero1.source}
+                  ● {hero1.source} • {formatDate(hero1.createdAt)} 
                 </p>
 
                 <p className="text-[#2F2F2F] text-[16px] leading-6 border-t border-[#D1D1D1] pt-4">
@@ -92,7 +109,7 @@ export default function CategoryPage() {
                 </h2>
 
                 <p className="text-xs text-[#4F4F4F] mb-4 tracking-wide">
-                  ● {hero2.source}
+                  ● {hero2.source} • {formatDate(hero2.createdAt)}
                 </p>
 
                 <p className="text-[#2F2F2F] text-[16px] leading-6 border-t border-[#D1D1D1] pt-4">
@@ -133,7 +150,7 @@ export default function CategoryPage() {
           {/* Left Small News (3 cols) */}
           {side1 && (
             <div className="col-span-12 lg:col-span-3">
-                <Link href={`/category/${slug}/${side1._id}`}>
+              <Link href={`/category/${slug}/${side1._id}`}>
                 <div className="mb-4">
                   <Image
                     src={side1.image || poli1}
@@ -151,18 +168,20 @@ export default function CategoryPage() {
                   {side1.title}
                 </h3>
 
-                <p className="text-sm text-gray-500 mb-3">● {side1.source}</p>
+                <p className="text-sm text-gray-500 mb-3">
+                  ● {side1.source} • {formatDate(side1.createdAt)}
+                </p>
 
                 <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
                   {side1.summary}
                 </p>
-            </Link>
-              </div>
+              </Link>
+            </div>
           )}
           {/* Center Big Featured (6 cols) */}
           {center && (
             <div className="col-span-12 lg:col-span-6">
-                <Link href={`/category/${slug}/${center._id}`}>
+              <Link href={`/category/${slug}/${center._id}`}>
                 <div className="mb-4">
                   <Image
                     src={center.image || poli1}
@@ -177,19 +196,19 @@ export default function CategoryPage() {
                   {center.title}
                 </h2>
 
-                <p className="text-sm text-gray-500 mb-3">● {center.source}</p>
+                <p className="text-sm text-gray-500 mb-3">● {center.source} • {formatDate(center.createdAt)} </p>
 
                 <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
                   {center.summary}
                 </p>
-            </Link>
-              </div>
+              </Link>
+            </div>
           )}
 
           {/* Right Small News (3 cols) */}
           {side2 && (
             <div className="col-span-12 lg:col-span-3">
-                <Link href={`/category/${slug}/${side2._id}`}>
+              <Link href={`/category/${slug}/${side2._id}`}>
                 <div className="mb-4">
                   <Image
                     src={side2.image || poli1}
@@ -207,13 +226,13 @@ export default function CategoryPage() {
                   {side2.title}
                 </h3>
 
-                <p className="text-sm text-gray-500 mb-3">● {side2.source}</p>
+                <p className="text-sm text-gray-500 mb-3">● {side2.source} • {formatDate(side2.createdAt)} </p>
 
                 <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
                   {side2.summary}
                 </p>
-            </Link>
-              </div>
+              </Link>
+            </div>
           )}
         </div>
 

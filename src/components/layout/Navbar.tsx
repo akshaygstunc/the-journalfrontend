@@ -215,12 +215,8 @@ export default function Navbar() {
           </h1>
 
           <div className="flex gap-3">
-            <button className="border border-[#861212] text-[#861212] px-4 py-1 rounded-md">
-              Login
-            </button>
-            <button className="bg-[#861212] text-white px-4 py-1 rounded-md">
-              SignUp
-            </button>
+            <Link href="/login" className="border border-[#861212] text-[#861212] px-4 py-1 rounded-md hover:bg-[#861212] hover:text-white transition-colors">Login</Link>
+            <Link href="/signup" className="bg-[#861212] text-white px-4 py-1 rounded-md hover:bg-[#6e0f0f] transition-colors">Sign Up</Link>
           </div>
         </div>
         {/* list bar */}
