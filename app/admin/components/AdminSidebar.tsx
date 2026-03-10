@@ -20,7 +20,6 @@ const navItems = [
     label: "Dashboard",
     href: "/admin",
     icon: RxDashboard,
-    badge: 2,
   },
   {
     label: "Articles",
@@ -36,11 +35,11 @@ const navItems = [
     href: "/admin/media-library",
     icon: HiOutlinePhotograph,
   },
-  {
-    label: "Source Management",
-    href: "/admin/source-management",
-    icon: PiStackSimpleBold,
-  },
+  // {
+  //   label: "Source Management",
+  //   href: "/admin/source-management",
+  //   icon: PiStackSimpleBold,
+  // },
   {
     label: "User Roles",
     href: "/admin/user-roles",
@@ -95,7 +94,7 @@ export default function AdminSidebar() {
                     "transition-colors",
                     "text-[14px]",
                     isActive
-                      ? "bg-white text-[#861212] shadow-sm"
+                      ? "bg-white text-[#861212] shadow-sm border-l-2 border-[#862121]"
                       : "text-[#6D6D6D] hover:text-[#212121]",
                   ].join(" ")}
                 >
