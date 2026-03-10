@@ -57,7 +57,6 @@ export default function CategoryPage() {
         <div>
           {/* Category Title */}
           <h1 className="text-[30px] md:text-[50px] font-bold text-[#212121] capitalize mb-6 md:mb-10">
-            {slug}
           </h1>
         </div>
 
