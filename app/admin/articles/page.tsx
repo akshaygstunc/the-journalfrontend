@@ -9,7 +9,11 @@ import { useState, useEffect } from "react";
 import { LuGrid2X2 } from "react-icons/lu";
 import { useUIStore } from "../lib/store/uiStore";
 import Pagination from "../components/Pagination";
-import { getCoverage, ignoreStory } from "@/src/services/news.service";
+import {
+  getCoverage,
+  ignoreStory,
+  updateStatus,
+} from "@/src/services/news.service";
 
 export default function CoveragePage() {
   const router = useRouter();
@@ -138,9 +142,17 @@ export default function CoveragePage() {
         {loading ? (
           <GridSkeleton />
         ) : view === "grid" ? (
-          <GridView stories={paginatedStories} reload={loadStories} />
+          <GridView
+            stories={paginatedStories}
+            reload={loadStories}
+            status={status}
+          />
         ) : (
-          <TableView stories={paginatedStories} reload={loadStories} />
+          <TableView
+            stories={paginatedStories}
+            reload={loadStories}
+            status={status}
+          />
         )}
         <StoryPreviewDrawer />
 
@@ -172,9 +184,9 @@ function Tag({ type }: { type: string }) {
   );
 }
 
-function GridView({ stories, reload }: any) {
-  const { handlePreview, handleAssign, handleIgnore } = useStoryActions(reload);
-
+function GridView({ stories, reload, status }: any) {
+  const { handlePreview, handleAssign, handleIgnore, moveStatus } =
+    useStoryActions(reload);
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {stories.map((story: any) => (
@@ -206,19 +218,83 @@ function GridView({ stories, reload }: any) {
           </div>
 
           <div className="flex justify-end gap-3 mt-4 text-sm border-t pt-3 border-[#E7E7E7]">
-            <button
-              className="text-gray-500 hover:text-gray-700"
-              onClick={(e) => handleIgnore(e, story)}
-            >
-              Ignore
-            </button>
+            {status === "upcoming" && (
+              <>
+                <button
+                  type="button"
+                  className="text-gray-500"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleIgnore(e, story);
+                  }}
+                >
+                  Ignore
+                </button>
 
-            <button
-              className="border border-[#E7E7E7] px-3 py-1 rounded-md hover:bg-gray-50"
-              onClick={(e) => handleAssign(e, story)}
-            >
-              Assign
-            </button>
+                <button
+                  type="button"
+                  className="border px-3 py-1 rounded"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAssign(e, story);
+                  }}
+                >
+                  Assign
+                </button>
+              </>
+            )}
+
+            {status === "assigned" && (
+              <button
+                type="button"
+                className="border px-3 py-1 rounded bg-blue-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  moveStatus(e, story, "desk_review");
+                }}
+              >
+                Move to Desk Review
+              </button>
+            )}
+
+            {status === "desk_review" && (
+              <button
+                type="button"
+                className="border px-3 py-1 rounded bg-purple-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  moveStatus(e, story, "copy_edit");
+                }}
+              >
+                Move to Copy Edit
+              </button>
+            )}
+
+            {status === "copy_edit" && (
+              <button
+                type="button"
+                className="border px-3 py-1 rounded bg-green-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  moveStatus(e, story, "ready_to_publish");
+                }}
+              >
+                Ready to Publish
+              </button>
+            )}
+
+            {status === "ready_to_publish" && (
+              <button
+                type="button"
+                className="border px-3 py-1 rounded bg-green-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  moveStatus(e, story, "published");
+                }}
+              >
+                Publish
+              </button>
+            )}
           </div>
         </div>
       ))}
@@ -227,8 +303,8 @@ function GridView({ stories, reload }: any) {
 }
 
 function TableView({ stories, reload }: any) {
-  const { handlePreview, handleAssign, handleIgnore } = useStoryActions(reload);
-
+  const { handlePreview, handleAssign, handleIgnore, moveStatus } =
+    useStoryActions(reload);
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden">
       <table className="w-full text-sm">
@@ -306,13 +382,35 @@ function useStoryActions(reload: any) {
 
     try {
       await ignoreStory(story.id);
+
       reload();
     } catch (err) {
       console.error("Ignore error", err);
     }
   };
 
-  return { handlePreview, handleAssign, handleIgnore };
+  const moveStatus = async (
+    e: React.MouseEvent<HTMLButtonElement>,
+    story: any,
+    nextStatus: string,
+  ) => {
+    e.stopPropagation();
+
+    try {
+      await updateStatus(story.id, nextStatus);
+
+      reload();
+    } catch (err) {
+      console.error("Status update error", err);
+    }
+  };
+
+  return {
+    handlePreview,
+    handleAssign,
+    handleIgnore,
+    moveStatus,
+  };
 }
 
 function GridSkeleton() {

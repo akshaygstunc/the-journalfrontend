@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Pagination from "../../components/Pagination";
+import { getCoverage } from "@/src/services/news.service";
 
 const articles = [
   {
@@ -58,14 +59,46 @@ const articles = [
   },
 ];
 
-export default function Page( ) {
+export default function Page() {
+  const [articles, setArticles] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadArticles();
+  }, []);
+
+  const loadArticles = async () => {
+    try {
+      setLoading(true);
+
+      const data = await getCoverage("published");
+
+      const formatted = data.map((item: any) => ({
+        id: item._id,
+        title: item.title,
+        category: item.category,
+        status: item.status,
+        publishDate: new Date(item.publishedAt).toLocaleDateString(),
+        time: new Date(item.publishedAt).toLocaleTimeString(),
+        views: item.views || 0,
+        author: item.author || "Admin",
+        source: item.source,
+        revisions: item.revisions || 0,
+      }));
+
+      setArticles(formatted);
+    } catch (err) {
+      console.error("Published fetch error", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const totalPages = Math.ceil(articles.length / perPage);
 
   const paginatedData = articles.slice((page - 1) * perPage, page * perPage);
-
   return (
     <div className="p-6 bg-[#F6F6F6] min-h-screen">
       {/* FILTER BAR */}
@@ -124,7 +157,7 @@ export default function Page( ) {
           </thead>
 
           <tbody>
-            {articles.map((article) => (
+            {paginatedData.map((article) => (
               <tr key={article.id} className="border-t border-[#E7E7E7]">
                 <td className="p-4">
                   <input type="checkbox" />
@@ -146,7 +179,7 @@ export default function Page( ) {
                 <td>
                   <span
                     className={`px-2 py-1 rounded text-xs ${
-                      article.status === "Published"
+                      article.status === "published"
                         ? "bg-green-100 text-green-700"
                         : "bg-gray-200 text-gray-700"
                     }`}

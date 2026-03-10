@@ -19,7 +19,7 @@ import {
   FiAlertCircle,
 } from "react-icons/fi";
 import { useDropzone } from "react-dropzone";
-import { createStory, saveDraft } from "@/src/services/news.service";
+import { createStory } from "@/src/services/news.service"; // Remove saveDraft import
 import { useRouter } from "next/navigation";
 
 // Enhanced schema with all required fields
@@ -50,8 +50,6 @@ export default function CreateArticle() {
   const [breaking, setBreaking] = useState(false);
   const [images, setImages] = useState<ArticleImage[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const {
@@ -92,40 +90,7 @@ export default function CreateArticle() {
     }
   }, [title, setValue]);
 
-  // Auto-save draft
-  const values = watch();
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      if (!values.title && !content) return;
-
-      setIsSavingDraft(true);
-      try {
-        await saveDraft({
-          title: values.title || "Untitled Draft",
-          slug: values.slug || slugify(values.title || "untitled-draft", {
-            lower: true,
-            strict: true,
-          }),
-          summary: values.subHeadline || "",
-          content: content || "",
-          category: values.category || "",
-          location: values.location || "",
-          tags: values.tags || [],
-          image: images?.[0]?.preview || "",
-          imageCaption: images?.[0]?.caption || "",
-          imageCredit: images?.[0]?.credit || "",
-          breaking: breaking,
-        });
-        setLastSaved(new Date());
-      } catch (err) {
-        console.log("Draft save error", err);
-      } finally {
-        setIsSavingDraft(false);
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [values, content, images, breaking]);
+  // REMOVED: Auto-save useEffect completely
 
   // Validation before submission
   const validateBeforeSubmit = (): boolean => {
@@ -222,6 +187,7 @@ export default function CreateArticle() {
   const hasTags = (watch("tags")?.length || 0) > 0;
 
   return (
+    // ... JSX remains exactly the same ...
     <div className="flex w-full min-h-screen bg-[#F4F4F4]">
       {/* LEFT CONTENT */}
       <div className="flex-1">
@@ -234,12 +200,7 @@ export default function CreateArticle() {
                 Draft
               </span>
             </h2>
-            {lastSaved && (
-              <p className="text-xs text-gray-500 mt-1">
-                Last saved: {lastSaved.toLocaleTimeString()}
-                {isSavingDraft && " (saving...)"}
-              </p>
-            )}
+            {/* REMOVED: Last saved indicator */}
           </div>
 
           <button

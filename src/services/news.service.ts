@@ -38,3 +38,16 @@ export const saveDraft = async (data: any) => {
   const res = await api.post("/news/manual", data);
   return res.data;
 };
+
+export const updateStatus = async (
+  id: string,
+  status: string
+) => {
+
+  const res = await api.patch(`/news/${id}/status`, {
+    status
+  });
+
+  return res.data;
+
+};
