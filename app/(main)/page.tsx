@@ -128,7 +128,7 @@ export default function Home() {
                   standard dummy text ever since the dummy text ever since the
                   Philomena Cunk Is{" "}
                 </p>
-              </div>
+              </div> 
               <div className="pb-6">
                 <h3 className="font-heading font-bold text-[18px] text-heading">
                   Philomena Cunk Is Weird Enough to Take on the World

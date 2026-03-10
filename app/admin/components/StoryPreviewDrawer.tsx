@@ -1,15 +1,16 @@
 // "use client";
 
-
 "use client";
 
+import { useState } from "react";
 import { useUIStore } from "../lib/store/uiStore";
 
 export default function StoryPreviewDrawer() {
   const { previewOpen, closePreview, selectedStory, openAssign } = useUIStore();
-
+  const imageSrc = selectedStory?.raw?.image?.trim() || "/placeholder.jpg";
+  const [expanded, setExpanded] = useState(false);
   if (!selectedStory) return null;
-console.log("Selected Story Image:", selectedStory);
+  console.log("Selected Story Image:", selectedStory);
   return (
     <div
       className={`fixed top-0 right-0 h-full w-full md:w-125 bg-white shadow-xl transition-transform duration-300 z-50 ${
@@ -17,7 +18,6 @@ console.log("Selected Story Image:", selectedStory);
       }`}
     >
       <div className="p-6 overflow-y-auto h-full">
-
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <span className="text-sm font-semibold text-gray-500">
@@ -60,38 +60,31 @@ console.log("Selected Story Image:", selectedStory);
         </div>
 
         {/* IMAGE */}
+
         <img
-          src={selectedStory.raw.image}
+          src={imageSrc}
           alt={selectedStory.title}
-          width={400}
-          height={200}
           className="w-full rounded mt-6"
         />
 
         {/* ARTICLE BODY */}
-        <div className="text-sm text-gray-700 leading-7 mt-6 space-y-4">
-          <p>
-            {selectedStory.description}
-          </p>
+        <div className="mt-6">
+          <div
+            className={`text-sm text-gray-700 leading-7 ${
+              expanded ? "" : "line-clamp-8"
+            }`}
+            dangerouslySetInnerHTML={{
+              __html: selectedStory.content || "<p>No Description</p>",
+            }}
+          />
 
-          <p>
-            When thousands of young Bangladeshis poured onto the streets last
-            year, the moment felt unmistakably historic. Students, first-time
-            voters, and digitally native activists — many of them Gen Z —
-            challenged a political order that had seemed immovable for decades.
-          </p>
-
-          <p>
-            Their protests were not driven by a single leader or party banner,
-            but by a shared frustration with authoritarian governance,
-            corruption, and shrinking economic opportunity.
-          </p>
-
-          <p>
-            For a brief moment, the country appeared to be turning a page.
-          </p>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-[#861212] text-sm font-medium mt-2"
+          >
+            {expanded ? "Read Less" : "Read More"}
+          </button>
         </div>
-
       </div>
     </div>
   );

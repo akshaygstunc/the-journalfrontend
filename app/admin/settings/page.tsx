@@ -86,7 +86,8 @@ export default function AdminSettings() {
                 name="autoSave"
                 checked={settings.autoSave}
                 onChange={handleChange}
-                accentColor="#861212"
+                  className="accent-[#861212]"
+
               />
             </label>
 
@@ -98,7 +99,8 @@ export default function AdminSettings() {
                 name="commentsEnabled"
                 checked={settings.commentsEnabled}
                 onChange={handleChange}
-                accentColor="#861212"
+                  className="accent-[#861212]"
+
               />
             </label>
 
@@ -117,7 +119,8 @@ export default function AdminSettings() {
               name="notifications"
               checked={settings.notifications}
               onChange={handleChange}
-              accentColor="#861212"
+                className="accent-[#861212]"
+
             />
           </label>
         </div>
