@@ -1,134 +1,67 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  getUsers,
+  createUser,
+  deleteUserApi,
+  updateUserApi,
+} from "@/src/services/user.service";
 
 export default function AdminUserRoles() {
-
   const [users, setUsers] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [editUser, setEditUser] = useState<any | null>(null);
 
   const [form, setForm] = useState({
     name: "",
     email: "",
-    role: "Editor",
+    role: "editor",
   });
 
-  /* FETCH USERS */
-
   const fetchUsers = async () => {
-
     try {
-
       setLoading(true);
-
-      const res = await fetch("/api/users");
-      const data = await res.json();
-
+      const data = await getUsers();
       setUsers(data);
-
-    } catch (err) {
-      console.error(err);
     } finally {
       setLoading(false);
     }
-
   };
-
-  /* ADD USER */
 
   const addUser = async () => {
-
     if (!form.name || !form.email) return;
 
-    try {
+    await createUser(form);
 
-      await fetch("/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+    setForm({
+      name: "",
+      email: "",
+      role: "editor",
+    });
 
-      setForm({
-        name: "",
-        email: "",
-        role: "Editor",
-      });
-
-      fetchUsers();
-
-    } catch (err) {
-      console.error(err);
-    }
-
+    fetchUsers();
   };
-
-  /* DELETE USER */
 
   const deleteUser = async (id: string) => {
-
     if (!confirm("Delete this user?")) return;
 
-    try {
-
-      await fetch(`/api/users/${id}`, {
-        method: "DELETE",
-      });
-
-      setUsers(users.filter((u) => u._id !== id));
-
-    } catch (err) {
-      console.error(err);
-    }
-
+    await deleteUserApi(id);
+    fetchUsers();
   };
-
-  /* UPDATE ROLE */
 
   const updateRole = async (id: string, role: string) => {
-
-    try {
-
-      await fetch(`/api/users/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ role }),
-      });
-
-      fetchUsers();
-
-    } catch (err) {
-      console.error(err);
-    }
-
+    await updateUserApi(id, { role });
+    fetchUsers();
   };
 
-  /* TOGGLE STATUS */
-
   const toggleStatus = async (user: any) => {
+    await updateUserApi(user._id, {
+      active: !user.active,
+    });
 
-    try {
-
-      await fetch(`/api/users/${user._id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          active: !user.active,
-        }),
-      });
-
-      fetchUsers();
-
-    } catch (err) {
-      console.error(err);
-    }
-
+    fetchUsers();
   };
 
   useEffect(() => {
@@ -136,203 +69,195 @@ export default function AdminUserRoles() {
   }, []);
 
   const filtered = users.filter((u) =>
-    u.name?.toLowerCase().includes(search.toLowerCase())
+    u.name?.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
-
-    <div className="p-6 bg-[#F6F6F6] min-h-screen">
-
+    <div className="p-6 bg-gray-100 min-h-screen">
+      ```
       {/* HEADER */}
-
-      <div className="flex justify-between items-center mb-6">
-
-        <h1 className="text-3xl font-semibold">
-          User Roles
-        </h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-semibold">User Roles Management</h1>
 
         <input
           placeholder="Search users..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border border-[#E7E7E7] rounded px-4 py-2"
+          className="border rounded-lg px-4 py-2 w-full md:w-64"
         />
-
       </div>
-
-
-      {/* ADD USER */}
-
-      <div className="bg-white border border-[#E7E7E7] rounded-lg p-6 mb-6">
-
-        <h2 className="font-semibold mb-4">
-          Add User
-        </h2>
+      {/* ADD USER CARD */}
+      <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
+        <h2 className="font-semibold mb-4 text-lg">Add New User</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
           <input
-            placeholder="Name"
+            placeholder="Full name"
             value={form.name}
-            onChange={(e) =>
-              setForm({ ...form, name: e.target.value })
-            }
-            className="border border-[#E7E7E7] rounded px-3 py-2"
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="border rounded-lg px-3 py-2"
           />
 
           <input
-            placeholder="Email"
+            placeholder="Email address"
             value={form.email}
-            onChange={(e) =>
-              setForm({ ...form, email: e.target.value })
-            }
-            className="border border-[#E7E7E7] rounded px-3 py-2"
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className="border rounded-lg px-3 py-2"
           />
 
           <select
             value={form.role}
-            onChange={(e) =>
-              setForm({ ...form, role: e.target.value })
-            }
-            className="border border-[#E7E7E7] rounded px-3 py-2"
+            onChange={(e) => setForm({ ...form, role: e.target.value })}
+            className="border rounded-lg px-3 py-2"
           >
-
-            <option>Admin</option>
-            <option>Editor</option>
-            <option>Reporter</option>
-
+            <option value="admin">Admin</option>
+            <option value="editor">Editor</option>
+            <option value="reporter">Reporter</option>
           </select>
 
           <button
             onClick={addUser}
-            className="bg-[#861212] text-white rounded px-4 py-2"
+            className="bg-[#861212] hover:bg-[#6e0f0f] text-white rounded-lg px-4 py-2"
           >
-            Add
+            Add User
           </button>
-
         </div>
-
       </div>
-
-
       {/* USERS TABLE */}
-
-      <div className="bg-white border border-[#E7E7E7] rounded-lg overflow-hidden">
-
-        <table className="w-full text-sm">
-
-          <thead className="bg-gray-50 text-left">
-
-            <tr>
-
-              <th className="p-4">Name</th>
-              <th className="p-4">Email</th>
-              <th className="p-4">Role</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Actions</th>
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            {loading ? (
-
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-gray-600">
               <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
-                  Loading users...
-                </td>
+                <th className="p-4 text-left">Name</th>
+                <th className="p-4 text-left">Email</th>
+                <th className="p-4 text-left">Role</th>
+                <th className="p-4 text-left">Status</th>
+                <th className="p-4 text-left">Actions</th>
               </tr>
+            </thead>
 
-            ) : filtered.length === 0 ? (
-
-              <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
-                  No users found
-                </td>
-              </tr>
-
-            ) : (
-
-              filtered.map((user) => (
-
-                <tr
-                  key={user._id}
-                  className="border-t border-[#E7E7E7]"
-                >
-
-                  <td className="p-4 font-medium">
-                    {user.name}
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="p-6 text-center">
+                    Loading users...
                   </td>
-
-                  <td className="p-4 text-gray-600">
-                    {user.email}
-                  </td>
-
-                  <td className="p-4">
-
-                    <select
-                      value={user.role}
-                      onChange={(e) =>
-                        updateRole(user._id, e.target.value)
-                      }
-                      className="border border-[#E7E7E7] rounded px-2 py-1"
-                    >
-
-                      <option>Admin</option>
-                      <option>Editor</option>
-                      <option>Reporter</option>
-
-                    </select>
-
-                  </td>
-
-                  <td className="p-4">
-
-                    <span
-                      className={`text-xs px-2 py-1 rounded ${
-                        user.active
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-200 text-gray-600"
-                      }`}
-                    >
-                      {user.active ? "Active" : "Suspended"}
-                    </span>
-
-                  </td>
-
-                  <td className="p-4 flex gap-3 text-xs">
-
-                    <button
-                      onClick={() => toggleStatus(user)}
-                      className="text-blue-600"
-                    >
-                      Toggle
-                    </button>
-
-                    <button
-                      onClick={() => deleteUser(user._id)}
-                      className="text-red-500"
-                    >
-                      Delete
-                    </button>
-
-                  </td>
-
                 </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-6 text-center">
+                    No users found
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((user) => (
+                  <tr key={user._id} className="border-t hover:bg-gray-50">
+                    <td className="p-4 font-medium">{user.name}</td>
 
-              ))
+                    <td className="p-4 text-gray-600">{user.email}</td>
 
-            )}
+                    <td className="p-4">
+                      <select
+                        value={user.role}
+                        onChange={(e) => updateRole(user._id, e.target.value)}
+                        className="border rounded px-2 py-1"
+                      >
+                        <option value="admin">Admin</option>
+                        <option value="editor">Editor</option>
+                        <option value="reporter">Reporter</option>
+                      </select>
+                    </td>
 
-          </tbody>
+                    <td className="p-4">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          user.active
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-200 text-gray-600"
+                        }`}
+                      >
+                        {user.active ? "Active" : "Suspended"}
+                      </span>
+                    </td>
 
-        </table>
+                    <td className="p-4 flex gap-3">
+                      <button
+                        onClick={() => toggleStatus(user)}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Toggle
+                      </button>
 
+                      <button
+                        onClick={() => deleteUser(user._id)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Delete
+                      </button>
+
+                      <button
+                        onClick={() => setEditUser(user)}
+                        className="text-indigo-600 hover:underline"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+      {/* EDIT MODAL */}
+      {editUser && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Edit User</h2>
 
+            <input
+              value={editUser.name}
+              onChange={(e) =>
+                setEditUser({ ...editUser, name: e.target.value })
+              }
+              className="border w-full mb-3 px-3 py-2 rounded"
+            />
+
+            <select
+              value={editUser.role}
+              onChange={(e) =>
+                setEditUser({ ...editUser, role: e.target.value })
+              }
+              className="border w-full mb-4 px-3 py-2 rounded"
+            >
+              <option value="admin">Admin</option>
+              <option value="editor">Editor</option>
+              <option value="reporter">Reporter</option>
+            </select>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setEditUser(null)}
+                className="border px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={async () => {
+                  await updateUserApi(editUser._id, editUser);
+                  setEditUser(null);
+                  fetchUsers();
+                }}
+                className="bg-[#861212] text-white px-4 py-2 rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-
   );
 }
