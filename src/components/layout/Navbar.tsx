@@ -152,58 +152,58 @@ export default function Navbar() {
           </div>
 
           {/* Results Dropdown */}
-       {query && (
-  <div className="absolute top-18 left-20 w-[400px] bg-white border border-[#E5E5E5] rounded-lg shadow-lg p-4 z-50">
+          {query && (
+            <div className="absolute top-18 left-20 w-[400px] bg-white border border-[#E5E5E5] rounded-lg shadow-lg p-4 z-50">
+              {/* Header with close button */}
+              <div className="flex justify-between items-center mb-3">
+                <p className="text-sm font-semibold text-gray-700">
+                  Search Results
+                </p>
 
-    {/* Header with close button */}
-    <div className="flex justify-between items-center mb-3">
-      <p className="text-sm font-semibold text-gray-700">Search Results</p>
+                <button
+                  onClick={() => {
+                    setQuery("");
+                    setResults([]);
+                  }}
+                  className="text-gray-500 hover:text-black"
+                >
+                  <IoClose size={20} />
+                </button>
+              </div>
 
-      <button
-        onClick={() => {
-          setQuery("");
-          setResults([]);
-        }}
-        className="text-gray-500 hover:text-black"
-      >
-        <IoClose size={20} />
-      </button>
-    </div>
+              {loading && <p className="text-sm text-gray-500">Searching...</p>}
 
-    {loading && <p className="text-sm text-gray-500">Searching...</p>}
+              {!loading && results.length === 0 && (
+                <p className="text-sm text-gray-500">No results found</p>
+              )}
 
-    {!loading && results.length === 0 && (
-      <p className="text-sm text-gray-500">No results found</p>
-    )}
+              <div className="space-y-4">
+                {results.map((item: any) => (
+                  <Link
+                    key={item._id}
+                    href={`/category/${item.category}/${item._id}`}
+                    onClick={() => setQuery("")} // close after click
+                  >
+                    <div className="border-b pb-3 hover:bg-gray-50 cursor-pointer p-2 rounded">
+                      <p className="text-xs text-gray-500 mb-1">Article</p>
 
-    <div className="space-y-4">
-      {results.map((item: any) => (
-        <Link
-          key={item._id}
-          href={`/category/${item.category}/${item._id}`}
-          onClick={() => setQuery("")} // close after click
-        >
-          <div className="border-b pb-3 hover:bg-gray-50 cursor-pointer p-2 rounded">
-            <p className="text-xs text-gray-500 mb-1">Article</p>
+                      <h3 className="font-semibold text-sm leading-5">
+                        {item.title}
+                      </h3>
 
-            <h3 className="font-semibold text-sm leading-5">
-              {item.title}
-            </h3>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {item.source}
+                      </p>
 
-            <p className="text-xs text-gray-500 mt-1">
-              {item.source}
-            </p>
-
-            <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-              {item.summary}
-            </p>
-          </div>
-        </Link>
-      ))}
-    </div>
-
-  </div>
-)}
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                        {item.summary}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           <h1 className="font-bold text-[40px] text-[#861212] tracking-wide">
             <Link

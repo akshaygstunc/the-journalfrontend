@@ -66,11 +66,11 @@ export default function AdminSidebar() {
       <div className="flex items-center gap-2 px-6 pt-6 pb-8">
         <div className="h-8 w-8 rounded-full bg-[#861212] flex items-center justify-center">
           <span className="text-white text-[12px] font-semibold leading-none">
-            L
+            T J
           </span>
         </div>
         <span className="text-[16px] font-semibold text-[#212121]">
-          TheJournal
+          The Journal
         </span>
       </div>
 
@@ -108,11 +108,11 @@ export default function AdminSidebar() {
                     <span className="truncate">{item.label}</span>
                   </span>
 
-                  {item.badge && (
+                  {/* {item.badge && (
                     <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#861212] text-[11px] font-medium text-white">
                       {item.badge}
                     </span>
-                  )}
+                  )} */}
                 </Link>
 
                 {/* Children for Articles */}

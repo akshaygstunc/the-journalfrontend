@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { RiAddLine } from "react-icons/ri";
 import {
   LineChart,
   Line,
@@ -60,9 +61,9 @@ export default function AdminDashboard() {
 
         <Link
           href="/admin/articles/create"
-          className="bg-[#861212] text-white px-5 py-2 rounded-md"
+          className="bg-[#861212] text-white px-5 py-2 rounded-md flex gap-2 items-center"
         >
-          Create Story
+         <RiAddLine /> Create Story
         </Link>
 
       </div>
