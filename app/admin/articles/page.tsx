@@ -40,6 +40,7 @@ export default function CoveragePage() {
         id: item._id,
         title: item.title,
         description: item.summary || "",
+        content: item.content || "",
         source: item.source,
         time: new Date(item.createdAt).toLocaleDateString(),
         tag: "breaking",
@@ -202,11 +203,11 @@ function GridView({ stories, reload, status }: any) {
               {story.title}
             </h3>
 
-            {story.description && (
+            {/* {story.content && ( */}
               <p className="text-sm text-[#6D6D6D] mt-2 line-clamp-2 break-words">
-                {story.description}
+                {story.description || "No Summary"}
               </p>
-            )}
+            {/* )} */}
 
             <div className="text-xs mt-3 flex gap-2">
               <span className="text-[#0727CC] font-medium border-r pr-2 border-[#E7E7E7]">

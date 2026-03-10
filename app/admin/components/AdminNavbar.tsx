@@ -58,11 +58,16 @@ const handleLogout = async () => {
 
         {isDropdownOpen && (
           <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#E5E5E5] rounded-lg shadow-lg py-2 z-50">
-            <div className="px-4 py-3 border-b border-[#E5E5E5]">
-              <p className="flex items-center gap-2 font-semibold text-[#212121] text-sm">Isabelle Kin<p className="text-xs">(admin)</p></p>
-              <p className="text-[#6D6D6D] text-xs">admin@thejournal.com</p>
-              
-            </div>
+           <div className="px-4 py-3 border-b border-[#E5E5E5]">
+  <p className="flex items-center gap-2 font-semibold text-[#212121] text-sm">
+    Isabelle Kin
+    <span className="text-xs text-[#6D6D6D]">(admin)</span>
+  </p>
+
+  <p className="text-[#6D6D6D] text-xs">
+    admin@thejournal.com
+  </p>
+</div>
            
             <button   onClick={handleLogout} className="w-full flex items-center cursor-pointer gap-3 px-4 py-2 text-sm text-[#212121] hover:bg-[#F5F5F5] rounded-lg transition-colors">
               <FiLogOut className="w-4 h-4" />
