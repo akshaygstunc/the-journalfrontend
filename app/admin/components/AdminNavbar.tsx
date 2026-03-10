@@ -64,7 +64,7 @@ const handleLogout = async () => {
               
             </div>
            
-            <button   onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#212121] hover:bg-[#F5F5F5] rounded-lg transition-colors">
+            <button   onClick={handleLogout} className="w-full flex items-center cursor-pointer gap-3 px-4 py-2 text-sm text-[#212121] hover:bg-[#F5F5F5] rounded-lg transition-colors">
               <FiLogOut className="w-4 h-4" />
               Sign out
             </button>

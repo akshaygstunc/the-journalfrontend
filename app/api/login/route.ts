@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       role: user.role,
     });
 
-    res.cookies.set("admin-auth", "true", {
+    res.cookies.set("isAuthenticated", "true", {
       httpOnly: true,
       path: "/",
     });

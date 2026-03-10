@@ -14,6 +14,24 @@ export default function ExploreMore({ news }: any) {
   const loadMore = () => {
     setVisible((prev) => prev + 3);
   };
+
+   function formatDate(dateString: string) {
+  const date = new Date(dateString);
+
+  const datePart = date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const timePart = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return `${datePart} • ${timePart}`;
+}
   return (
     <div className="mt-10 md:mt-16">
       {/* Section Title */}
@@ -45,7 +63,7 @@ export default function ExploreMore({ news }: any) {
                 </h2>
 
                 <p className="text-xs text-[#4F4F4F] mb-4 tracking-wide">
-                  ● {item.source}
+                  ● {item.source} • {formatDate(item.createdAt)} 
                 </p>
 
                 <p className="text-[#2F2F2F] text-[16px] leading-6 border-t border-[#D1D1D1] pt-4">

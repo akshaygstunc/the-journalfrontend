@@ -44,15 +44,24 @@ export default function CategorySubPage() {
         <p className="text-lg text-gray-600 mb-6">{news.summary}</p>
 
         {/* Image */}
-        <div className="relative w-full h-80 mb-6 rounded-lg overflow-hidden">
-          <Image src={news.image} alt={news.title} width={1200} height={800} />
+        <div className="relative w-full h-auto mb-6 rounded-lg overflow-hidden">
+          <Image src={news.image} alt={news.title} width={1200} height={400} />
         </div>
 
         {/* Meta */}
         <div className="flex items-center gap-4 text-sm text-gray-500 mb-8 border-b pb-4">
           <span>Source: {news.source}</span>
-          <span>•</span>
-          <span>{new Date(news.publishedAt).toLocaleDateString()}</span>
+          <span>•
+            {`${new Date(news.publishedAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })} • ${new Date(news.publishedAt).toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            })}`}
+          </span>
         </div>
 
         {/* Content */}

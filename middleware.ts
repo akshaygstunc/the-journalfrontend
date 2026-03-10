@@ -1,23 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
-function isAuthenticated(req: NextRequest) {
-  return req.cookies.get("admin-auth")?.value === "true";
-}
-
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
 
-  // ✅ Allow login page without auth
-  if (pathname === "/admin/login") {
-    return NextResponse.next();
+  const isAuth = req.cookies.get("isAuthenticated")?.value;
+
+  const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
+
+  const isLoginPage = req.nextUrl.pathname === "/admin/login";
+
+  if (isAdminRoute && !isAuth && !isLoginPage) {
+    return NextResponse.redirect(new URL("/admin/login", req.url));
   }
 
-  // ✅ Protect other admin routes
-//   if (!isAuthenticated(req)) {
-//     return NextResponse.redirect(
-//       new URL("/admin/login", req.url)
-//     );
-//   }
+  if (isLoginPage && isAuth) {
+    return NextResponse.redirect(new URL("/admin", req.url));
+  }
 
   return NextResponse.next();
 }

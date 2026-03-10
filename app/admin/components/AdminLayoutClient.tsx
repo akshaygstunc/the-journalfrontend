@@ -15,8 +15,8 @@ export default function AdminLayoutClient({
   const isLoginPage = pathname === "/admin/login";
 
   if (isLoginPage) {
-    return <>{children}</>;
-  }
+  return <>{children}</>;
+}
 
   return (
     <div className="min-h-screen flex bg-gray-100">
