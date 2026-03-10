@@ -9,7 +9,7 @@ export default function StoryPreviewDrawer() {
   const { previewOpen, closePreview, selectedStory, openAssign } = useUIStore();
 
   if (!selectedStory) return null;
-
+console.log("Selected Story Image:", selectedStory);
   return (
     <div
       className={`fixed top-0 right-0 h-full w-full md:w-125 bg-white shadow-xl transition-transform duration-300 z-50 ${
@@ -25,7 +25,7 @@ export default function StoryPreviewDrawer() {
           </span>
 
           <div className="flex items-center gap-4 text-sm">
-            <button
+            {/* <button
               className="text-gray-600"
               onClick={() => openAssign(selectedStory)}
             >
@@ -34,7 +34,7 @@ export default function StoryPreviewDrawer() {
 
             <button className="text-gray-600">
               Next →
-            </button>
+            </button> */}
 
             <button onClick={closePreview} className="text-gray-500">
               ✕
@@ -61,7 +61,10 @@ export default function StoryPreviewDrawer() {
 
         {/* IMAGE */}
         <img
-          src="/placeholder.jpg"
+          src={selectedStory.raw.image}
+          alt={selectedStory.title}
+          width={400}
+          height={200}
           className="w-full rounded mt-6"
         />
 
