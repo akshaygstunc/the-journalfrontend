@@ -4,9 +4,8 @@ import ArticleHeader from "@/src/components/article/ArticleHeader";
 import CommentsSection from "@/src/components/article/CommentsSection";
 import RelatedArticles from "@/src/components/article/RelatedArticles";
 import Container from "@/src/components/layout/Container";
-import HeaderSample from "@/src/components/layout/HeaderSample";
 
-export default function ArticlePage({
+export default async function ArticlePage({
   params,
 }: {
   params: { slug: string };

@@ -42,7 +42,7 @@ export default function ExploreMore({ news }: any) {
       {/* Articles List */}
       <div className="space-y-10">
         {news.slice(0, visible).map((item: any, index: number) => (
-          <Link href={`/category/${slug}/${item._id}`}>
+          <Link href={`/category/${slug}/${item.slug}-${item._id}`}>
             <div key={item} className="md:flex-row flex flex-col gap-6 pb-8">
               {/* Image */}
 
