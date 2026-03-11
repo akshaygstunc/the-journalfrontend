@@ -1,63 +1,54 @@
-"use client";
 import Container from "@/src/components/layout/Container";
 import ExploreMore from "@/src/components/sections/ExploreMore";
 import Image from "next/image";
-import { notFound, useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import politics from "../../../../public/images/featured1.png";
-import poli from "../../../../public/images/poli.png";
 import poli1 from "../../../../public/images/poli1.png";
 import { MdArrowOutward } from "react-icons/md";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { getNewsByCategory } from "@/src/lib/api/news";
 import Link from "next/link";
 
-export default function CategoryPage() {
-  const params = useParams();
-  const slug = params.slug as string;
+export default async function CategoryPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
 
-  const [news, setNews] = useState<any[]>([]);
+  console.log("slug:", slug);
 
-  useEffect(() => {
-    if (!slug) return;
-
-    loadNews();
-  }, [slug]);
-
-  const loadNews = async () => {
-    const data = await getNewsByCategory(slug);
-    setNews(data);
-  };
+  if (!slug) return notFound();
+  const news = await getNewsByCategory(slug);
   const hero1 = news[0];
   const hero2 = news[1];
   const side1 = news[2];
   const center = news[3];
   const side2 = news[4];
 
-  if (!slug) return notFound();
   function formatDate(dateString: string) {
-  const date = new Date(dateString);
+    const date = new Date(dateString);
 
-  const datePart = date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+    const datePart = date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
 
-  const timePart = date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+    const timePart = date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
 
-  return `${datePart} • ${timePart}`;
-}
+    return `${datePart} • ${timePart}`;
+  }
   return (
     <Container>
       <div className="w-full mx-auto p-6 md:p-12">
         <div>
           {/* Category Title */}
-          <h1 className="text-[30px] md:text-[50px] font-bold text-[#212121] capitalize mb-6 md:mb-10">
-          </h1>
+          <h1 className="text-[30px] md:text-[50px] font-bold text-[#212121] capitalize mb-6 md:mb-10"></h1>
         </div>
 
         {/* Top 2 Featured */}
@@ -65,7 +56,7 @@ export default function CategoryPage() {
           {/* Left Featured */}
 
           {hero1 && (
-            <Link href={`/category/${slug}/${hero1._id}`}>
+            <Link href={`/category/${slug}/${hero1.slug}-${hero1._id}`}>
               <div className="group cursor-pointer">
                 <div className="relative w-full mb-5">
                   <Image
@@ -81,7 +72,7 @@ export default function CategoryPage() {
                 </h2>
 
                 <p className="text-xs text-[#4F4F4F] mb-4 tracking-wide">
-                  ● {hero1.source} • {formatDate(hero1.createdAt)} 
+                  ● {hero1.source} • {formatDate(hero1.createdAt)}
                 </p>
 
                 <p className="text-[#2F2F2F] text-[16px] leading-6 border-t border-[#D1D1D1] pt-4">
@@ -92,7 +83,7 @@ export default function CategoryPage() {
           )}
           {/* Right Featured */}
           {hero2 && (
-            <Link href={`/category/${slug}/${hero2._id}`}>
+            <Link href={`/category/${slug}/${hero2.slug}-${hero2._id}`}>
               <div className="group cursor-pointer">
                 <div className="relative w-full mb-5">
                   <Image
@@ -149,7 +140,7 @@ export default function CategoryPage() {
           {/* Left Small News (3 cols) */}
           {side1 && (
             <div className="col-span-12 lg:col-span-3">
-              <Link href={`/category/${slug}/${side1._id}`}>
+              <Link href={`/category/${slug}/${side1.slug}-${side1._id}`}>
                 <div className="mb-4">
                   <Image
                     src={side1.image || poli1}
@@ -180,7 +171,7 @@ export default function CategoryPage() {
           {/* Center Big Featured (6 cols) */}
           {center && (
             <div className="col-span-12 lg:col-span-6">
-              <Link href={`/category/${slug}/${center._id}`}>
+              <Link href={`/category/${slug}/${center.slug}-${center._id}`}>
                 <div className="mb-4">
                   <Image
                     src={center.image || poli1}
@@ -195,7 +186,9 @@ export default function CategoryPage() {
                   {center.title}
                 </h2>
 
-                <p className="text-sm text-gray-500 mb-3">● {center.source} • {formatDate(center.createdAt)} </p>
+                <p className="text-sm text-gray-500 mb-3">
+                  ● {center.source} • {formatDate(center.createdAt)}{" "}
+                </p>
 
                 <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
                   {center.summary}
@@ -207,7 +200,7 @@ export default function CategoryPage() {
           {/* Right Small News (3 cols) */}
           {side2 && (
             <div className="col-span-12 lg:col-span-3">
-              <Link href={`/category/${slug}/${side2._id}`}>
+              <Link href={`/category/${slug}/${side1.slug}-${side2._id}`}>
                 <div className="mb-4">
                   <Image
                     src={side2.image || poli1}
@@ -225,7 +218,9 @@ export default function CategoryPage() {
                   {side2.title}
                 </h3>
 
-                <p className="text-sm text-gray-500 mb-3">● {side2.source} • {formatDate(side2.createdAt)} </p>
+                <p className="text-sm text-gray-500 mb-3">
+                  ● {side2.source} • {formatDate(side2.createdAt)}{" "}
+                </p>
 
                 <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
                   {side2.summary}

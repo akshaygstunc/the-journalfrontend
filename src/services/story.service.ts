@@ -1,6 +1,8 @@
-import { api } from "./axios";
+import { fetchApi } from "./fetchApi";
 
 export const createStory = async (data: any) => {
-  const res = await api.post("/stories", data);
-  return res.data;
+  return fetchApi(`/stories`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 };

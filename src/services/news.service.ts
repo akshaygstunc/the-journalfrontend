@@ -1,53 +1,48 @@
-import { api } from "./axios";
+import { fetchApi } from "./fetchApi";
 
- 
 export const getCoverage = async (status: string) => {
-  const res = await api.get(`/news/coverage?status=${status}`);
-  return res.data;
+  return fetchApi(`/news/coverage?status=${status}`, {
+    method: "GET",
+  });
 };
- 
+
 export const assignStory = async (
   id: string,
   reporter: string,
   priority: string
 ) => {
-  const res = await api.patch(`/news/${id}/assign`, {
-    reporter,
-    priority,
+  return fetchApi(`/news/${id}/assign`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      reporter,
+      priority,
+    }),
   });
- 
-  return res.data;
 };
- 
+
 export const ignoreStory = async (id: string) => {
-  const res = await api.patch(`/news/${id}/ignore`);
-  return res.data;
+  return fetchApi(`/news/${id}/ignore`, {
+    method: "PATCH",
+  });
 };
-
-
-/* CREATE MANUAL STORY */
 
 export const createStory = async (data: any) => {
-  const res = await api.post("/news/manual", data);
-  return res.data;
+  return fetchApi(`/news/manual`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 };
-
-/* SAVE DRAFT */
 
 export const saveDraft = async (data: any) => {
-  const res = await api.post("/news/manual", data);
-  return res.data;
+  return fetchApi(`/news/manual`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 };
 
-export const updateStatus = async (
-  id: string,
-  status: string
-) => {
-
-  const res = await api.patch(`/news/${id}/status`, {
-    status
+export const updateStatus = async (id: string, status: string) => {
+  return fetchApi(`/news/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
   });
-
-  return res.data;
-
 };

@@ -1,30 +1,35 @@
+import { fetchApi } from "./fetchApi";
 
 /* GET USERS */
 
-import { api } from "./axios";
-
 export const getUsers = async () => {
-  const res = await api.get("/users");
-  return res.data;
+  return fetchApi(`/users`, {
+    method: "GET",
+  });
 };
 
 /* CREATE USER */
 
-export const createUser = async (data:any) => {
-  const res = await api.post("/users", data);
-  return res.data;
+export const createUser = async (data: any) => {
+  return fetchApi(`/users`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 };
 
 /* DELETE USER */
 
-export const deleteUserApi = async (id:string) => {
-  const res = await api.delete(`/users/${id}`);
-  return res.data;
+export const deleteUserApi = async (id: string) => {
+  return fetchApi(`/users/${id}`, {
+    method: "DELETE",
+  });
 };
 
 /* UPDATE USER */
 
-export const updateUserApi = async (id:string, data:any) => {
-  const res = await api.patch(`/users/${id}`, data);
-  return res.data;
+export const updateUserApi = async (id: string, data: any) => {
+  return fetchApi(`/users/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
 };

@@ -1,30 +1,18 @@
-"use client";
-
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import { getNewsById } from "@/src/lib/api/news";
 import Image from "next/image";
 
-export default function CategorySubPage() {
-  const params = useParams();
+export default async function CategorySubPage({
+  params,
+}: {
+  params: Promise<{ slug: string; sub: string }>;
+}) {
 
-  const id = params.sub as string; // article id
-  const slug = params.slug as string;
+ const { slug, sub } = await params;
 
-  const [news, setNews] = useState<any>(null);
+  // extract id from slug-id
+  const id = sub.split("-").pop();
 
-  useEffect(() => {
-    if (!id) return;
-
-    loadNews();
-  }, [id]);
-
-  const loadNews = async () => {
-    const data = await getNewsById(id);
-
-    setNews(data);
-  };
-
+  const news = await getNewsById(id as string);
   if (!news) return <div>Loading...</div>;
 
   return (
@@ -51,7 +39,8 @@ export default function CategorySubPage() {
         {/* Meta */}
         <div className="flex items-center gap-4 text-sm text-gray-500 mb-8 border-b pb-4">
           <span>Source: {news.source}</span>
-          <span>•
+          <span>
+            •
             {`${new Date(news.publishedAt).toLocaleDateString("en-GB", {
               day: "numeric",
               month: "long",
