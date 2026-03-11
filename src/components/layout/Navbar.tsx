@@ -112,21 +112,21 @@ export default function Navbar() {
         <div className="flex items-center justify-between px-4 py-3 border-t border-[#E7E7E7]">
           {/* Weather */}
           <div className="flex items-center gap-2 text-sm py-2">
-                <Image src={day} alt="weather" width={40} />
-                <div>
-                  <div className="font-semibold text-lg">
-                    {weather ? `${weather.temp}°C` : "Loading..."}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {new Date().toLocaleDateString("en-US", {
-                      weekday: "long",
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </div>
-                </div>
+            <Image src={day} alt="weather" width={40} />
+            <div>
+              <div className="font-semibold text-lg">
+                {weather ? `${weather.temp}°C` : "Loading..."}
               </div>
+              <div className="text-xs text-gray-500">
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </div>
+            </div>
+          </div>
 
           {/* Category Tabs */}
           <div className="flex items-center gap-6 text-sm">
@@ -224,8 +224,18 @@ export default function Navbar() {
           </h1>
 
           <div className="flex gap-3">
-            <Link href="/login" className="border border-[#861212] text-[#861212] px-4 py-1 rounded-md hover:bg-[#861212] hover:text-white transition-colors">Login</Link>
-            <Link href="/signup" className="bg-[#861212] text-white px-4 py-1 rounded-md hover:bg-[#6e0f0f] transition-colors">Sign Up</Link>
+            <Link
+              href="/login"
+              className="border border-[#861212] text-[#861212] px-4 py-1 rounded-md hover:bg-[#861212] hover:text-white transition-colors"
+            >
+              Login
+            </Link>
+            <Link
+              href="/signup"
+              className="bg-[#861212] text-white px-4 py-1 rounded-md hover:bg-[#6e0f0f] transition-colors"
+            >
+              Sign Up
+            </Link>
           </div>
         </div>
         {/* list bar */}
