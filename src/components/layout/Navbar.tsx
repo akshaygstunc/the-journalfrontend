@@ -111,13 +111,22 @@ export default function Navbar() {
         {/* SECOND ROW */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-[#E7E7E7]">
           {/* Weather */}
-          <div className="flex items-center gap-2 text-sm">
-            <Image src={day} alt="weather" width={20} />
-            <div>
-              <div className="font-semibold">Saturday</div>
-              <div className="text-xs text-gray-500">February 7, 2026</div>
-            </div>
-          </div>
+          <div className="flex items-center gap-2 text-sm py-2">
+                <Image src={day} alt="weather" width={40} />
+                <div>
+                  <div className="font-semibold text-lg">
+                    {weather ? `${weather.temp}°C` : "Loading..."}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {new Date().toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </div>
+                </div>
+              </div>
 
           {/* Category Tabs */}
           <div className="flex items-center gap-6 text-sm">
