@@ -8,7 +8,7 @@ import { useParams } from "next/navigation";
 export default function ExploreMore({ news }: any) {
   const [visible, setVisible] = useState(3);
   const params = useParams();
-
+      console.log("newssssssssssssssssss",news)
   const id = params.sub as string;
   const slug = params.slug as string;
   const loadMore = () => {
@@ -41,9 +41,12 @@ export default function ExploreMore({ news }: any) {
 
       {/* Articles List */}
       <div className="space-y-10">
-        {news.slice(0, visible).map((item: any, index: number) => (
-          <Link href={`/category/${slug}/${item.slug}-${item._id}`}>
-            <div key={item} className="md:flex-row flex flex-col gap-6 pb-8">
+  {news.slice(0, visible).map((item: any, index: number) => (
+  <Link
+    key={item._id || index}
+    href={`/category/${slug}/${item.slug}-${item._id}`}
+  >
+    <div className="md:flex-row flex flex-col gap-6 pb-8">
               {/* Image */}
 
               <div className="lg:w-75 w-full">
