@@ -15,17 +15,6 @@ import Link from "next/link";
 
 // data/homeData.ts
 
-export const heroData = {
-  title:
-    "Gen Z toppled an autocrat - but old guard tipped to win Bangladesh vote",
-  source: "BBC",
-  time: "3h ago",
-  read: "4 Min Read",
-  description:
-    "Rahat Hossain was almost killed trying to save his friend in a youth uprising...",
-};
-
-const imageMap: any = { mw1, mw2, mw3, mw4 };
 export const gridNews = Array(4).fill({
   title: "Philomena Cunk Is Weird Enough to Take on the World",
   source: "BBC",
@@ -35,17 +24,8 @@ export const gridNews = Array(4).fill({
     "The new Netflix show looks like an ambitious BBC documentary...",
 });
 
-export const alsoNews = Array(6).fill({
-  title: "Philomena Cunk Is Weird Enough to Take on the World",
-  category: "Nature",
-  source: "BBC",
-  time: "3h ago",
-  read: "4 Min Read",
-  description:
-    "The new Netflix show looks like an ambitious BBC documentary...",
-});
 export default async function Home() {
-  const news = await getCoverage("published");
+  const news = (await getCoverage("published")) || [];
 
   /* SPLIT NEWS FOR SECTIONS */
 
@@ -59,17 +39,11 @@ export default async function Home() {
   const trendingSide = news.slice(0, 4);
   const trendingGrid = news.slice(0, 4);
 
-  const exploreMain = news[16];
 
-  const exploreSide = news.slice(17, 20);
-
-  const exploreGrid = news.slice(20, 24);
-
+  
   const alsoNews = news.slice(-4);
-  const getImage = (img: any) => {
-    if (!img) return "/placeholder.jpg";
-    return img;
-  };
+
+  
   const stripHtml = (html: string) => {
     if (!html) return "";
     return html.replace(/<[^>]*>/g, "");
@@ -92,7 +66,10 @@ export default async function Home() {
                     height={500}
                     className="w-full h-131.5 object-cover rounded-md"
                   />
-                  <Link href={`/category/${hero?.category}/${hero.slug}-${hero?.slug}`}>
+                  <Link
+                    href={`/category/${hero?.category}/${hero.slug}-${hero?._id}`}
+                  >
+                    {" "}
                     <h4 className="font-heading font-bold text-[24px] mt-6">
                       {hero.title}
                     </h4>
@@ -115,7 +92,9 @@ export default async function Home() {
             <div className="space-y-8 px-4 lg:px-0">
               {sideNews.map((item: any) => (
                 <div key={item._id} className="pb-6">
-                  <Link href={`/category/${item?.category}/${item.slug}-${item?._id}`}>
+                  <Link
+                    href={`/category/${item?.category}/${item.slug}-${item?._id}`}
+                  >
                     <h3 className="font-heading font-bold text-[18px] text-heading">
                       {item.title}
                     </h3>

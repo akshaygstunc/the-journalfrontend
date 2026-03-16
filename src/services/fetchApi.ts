@@ -1,6 +1,6 @@
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://control-officer-trip-calculator.trycloudflare.com/news";
+  "https://logo-lenders-hood-felt.trycloudflare.com/news";
 
 export async function fetchApi(url: string, options: RequestInit = {}) {
   let token: string | null = null;
