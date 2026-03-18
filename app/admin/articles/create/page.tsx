@@ -17,10 +17,23 @@ import {
   FiLink,
   FiSend,
   FiAlertCircle,
+  FiClock,
+  FiUser,
+  FiGlobe,
+  FiCheckCircle,
+  FiXCircle,
+  FiUploadCloud,
+  FiPlus,
+  FiTrash2,
+  FiEdit3,
+  FiEye,
+  FiSave,
 } from "react-icons/fi";
 import { useDropzone } from "react-dropzone";
-import { createStory } from "@/src/services/news.service"; // Remove saveDraft import
+import { createStory } from "@/src/services/news.service";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Enhanced schema with all required fields
 const schema = z.object({
@@ -31,6 +44,8 @@ const schema = z.object({
   date: z.string().min(1, "Date is required"),
   tags: z.array(z.string()).min(1, "At least one tag is required"),
   slug: z.string().min(3, "Slug is required"),
+  author: z.string().optional(),
+  source: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -44,6 +59,27 @@ type ArticleImage = {
   selected?: boolean;
 };
 
+// Category options with colors
+const categoryOptions = [
+  { value: "politics", label: "Politics", color: "#EF4444" },
+  { value: "business", label: "Business", color: "#10B981" },
+  { value: "world", label: "World", color: "#3B82F6" },
+  { value: "technology", label: "Technology", color: "#8B5CF6" },
+  { value: "sports", label: "Sports", color: "#F59E0B" },
+  { value: "entertainment", label: "Entertainment", color: "#EC4899" },
+];
+
+const tagOptions = [
+  { value: "economy", label: "Economy" },
+  { value: "investment", label: "Investment" },
+  { value: "stock", label: "Stock Market" },
+  { value: "politics", label: "Politics" },
+  { value: "technology", label: "Technology" },
+  { value: "health", label: "Health" },
+  { value: "science", label: "Science" },
+  { value: "environment", label: "Environment" },
+];
+
 export default function CreateArticle() {
   const router = useRouter();
   const [content, setContent] = useState("");
@@ -51,6 +87,9 @@ export default function CreateArticle() {
   const [images, setImages] = useState<ArticleImage[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
+  const [showImageMetadataModal, setShowImageMetadataModal] = useState(false);
+  const [selectedImageForMetadata, setSelectedImageForMetadata] = useState<ArticleImage | null>(null);
 
   const {
     register,
@@ -62,10 +101,12 @@ export default function CreateArticle() {
     resolver: zodResolver(schema),
     defaultValues: {
       tags: [],
+      author: "Admin",
+      source: "",
     },
   });
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "image/*": [] },
     onDrop: (acceptedFiles) => {
       const files = acceptedFiles.map((file) => ({
@@ -90,18 +131,13 @@ export default function CreateArticle() {
     }
   }, [title, setValue]);
 
-  // REMOVED: Auto-save useEffect completely
-
-  // Validation before submission
   const validateBeforeSubmit = (): boolean => {
     const errors: string[] = [];
 
-    // Check images
     if (images.length === 0) {
       errors.push("Please upload at least one image");
     }
 
-    // Check each image has caption and credit
     images.forEach((img, index) => {
       if (!img.caption?.trim()) {
         errors.push(`Image ${index + 1} is missing a caption`);
@@ -111,8 +147,7 @@ export default function CreateArticle() {
       }
     });
 
-    // Check content
-    if (!content || content === "<p></p>") {
+    if (!content || content === "<p></p>" || content.trim() === "") {
       errors.push("Please add content to the story");
     }
 
@@ -121,12 +156,9 @@ export default function CreateArticle() {
   };
 
   const onSubmit = async (data: FormData) => {
-    // Clear previous errors
     setValidationErrors([]);
 
-    // Run validation
     if (!validateBeforeSubmit()) {
-      // Scroll to top to show errors
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -134,7 +166,6 @@ export default function CreateArticle() {
     setIsSubmitting(true);
 
     try {
-      // Prepare payload matching backend structure exactly
       const payload = {
         title: data.title,
         slug: data.slug || slugify(data.title, { lower: true, strict: true }),
@@ -145,18 +176,16 @@ export default function CreateArticle() {
         tags: data.tags,
         breaking: breaking,
         images: images.map((img) => ({
-          url: img.preview, // Note: This should be the uploaded URL, not preview
+          url: img.preview,
           caption: img.caption,
           credit: img.credit,
         })),
-        author: "admin",
+        author: data.author || "Admin",
+        source: data.source || "",
         publishedAt: data.date,
       };
 
-      console.log("Submitting payload:", payload); // For debugging
       await createStory(payload);
-      
-      // Success - redirect
       router.push("/admin/articles");
     } catch (error) {
       console.error("Error creating story:", error);
@@ -166,13 +195,21 @@ export default function CreateArticle() {
     }
   };
 
-  const tagOptions = [
-    { value: "economy", label: "Economy" },
-    { value: "investment", label: "Investment" },
-    { value: "stock", label: "Stock" },
-    { value: "politics", label: "Politics" },
-    { value: "technology", label: "Technology" },
-  ];
+  const handleImageMetadataUpdate = (imageId: string, field: "caption" | "credit", value: string) => {
+    setImages((prev) =>
+      prev.map((img) => (img.id === imageId ? { ...img, [field]: value } : img))
+    );
+  };
+
+  const handleBulkMetadataUpdate = (field: "caption" | "credit", value: string) => {
+    setImages((prev) =>
+      prev.map((img) => (img.selected ? { ...img, [field]: value } : img))
+    );
+  };
+
+  const removeSelectedImages = () => {
+    setImages((prev) => prev.filter((img) => !img.selected));
+  };
 
   // Calculate completion stats
   const bodyText = content.replace(/<[^>]+>/g, "");
@@ -186,439 +223,654 @@ export default function CreateArticle() {
   const hasCategory = !!watch("category");
   const hasTags = (watch("tags")?.length || 0) > 0;
 
+  const completionPercentage = [
+    hasImage && allImagesHaveMetadata,
+    hasCategory,
+    hasLocation,
+    hasDate,
+    hasSlug,
+    hasTags,
+    content && content !== "<p></p>"
+  ].filter(Boolean).length * 14.28; // 7 items total
+
   return (
-    // ... JSX remains exactly the same ...
-    <div className="flex w-full min-h-screen bg-[#F4F4F4]">
-      {/* LEFT CONTENT */}
-      <div className="flex-1">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6 bg-white p-6 border-b border-[#E7E7E7]">
-          <div>
-            <h2 className="text-xl font-semibold">
-              New Story{" "}
-              <span className="text-xs bg-gray-200 px-2 py-1 rounded">
-                Draft
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header */}
+      <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#861212] to-[#B91C1C] bg-clip-text text-transparent">
+                Create New Story
+              </h1>
+              <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full flex items-center">
+                <FiClock className="mr-1" /> Draft
               </span>
-            </h2>
-            {/* REMOVED: Last saved indicator */}
-          </div>
-
-          <button
-            type="submit"
-            form="articleForm"
-            disabled={isSubmitting}
-            className={`flex items-center gap-2 bg-[#861212] text-white px-5 py-2 rounded-md ${
-              isSubmitting
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-[#6a0e0e]"
-            }`}
-          >
-            {isSubmitting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Submitting...
-              </>
-            ) : (
-              <>
-                <FiSend />
-                Send To Desk
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Validation Errors Banner */}
-        {validationErrors.length > 0 && (
-          <div className="max-w-4xl mx-auto mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-red-800 mb-2">
-              <FiAlertCircle className="text-lg" />
-              <h3 className="font-semibold">Please fix the following errors:</h3>
             </div>
-            <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
-              {validationErrors.map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
 
-        {/* Main Form */}
-        <div className="max-w-4xl mx-auto bg-white rounded-xl p-8 shadow-sm">
-          <form
-            id="articleForm"
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-6"
-          >
-            {/* Headline with error */}
-            <div>
-              <input
-                {...register("title")}
-                className={`w-full border rounded px-4 py-3 text-lg ${
-                  errors.title ? "border-red-500" : "border-[#E7E7E7]"
-                } focus:outline-none focus:ring-2 focus:ring-[#861212] focus:border-transparent`}
-                placeholder="What happened? *"
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => router.push("/admin/articles")}
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="articleForm"
                 disabled={isSubmitting}
-              />
-              {errors.title && (
-                <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium transition-all transform hover:scale-105 ${
+                  isSubmitting
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-[#861212] to-[#B91C1C] hover:shadow-lg hover:shadow-red-500/25"
+                }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  <>
+                    <FiSend className="text-lg" />
+                    Publish Story
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="h-1 bg-gray-200 rounded-full mb-4">
+            <motion.div
+              className="h-full bg-gradient-to-r from-[#861212] to-[#B91C1C] rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${completionPercentage}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Validation Errors */}
+        <AnimatePresence>
+          {validationErrors.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4"
+            >
+              <div className="flex items-center gap-2 text-red-800 mb-2">
+                <FiAlertCircle className="text-xl" />
+                <h3 className="font-semibold">Please fix the following errors:</h3>
+              </div>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {validationErrors.map((error, index) => (
+                  <li key={index} className="text-sm text-red-700 flex items-center gap-2">
+                    <FiXCircle className="flex-shrink-0" />
+                    {error}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Main Form */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Tab Navigation */}
+            <div className="bg-white rounded-xl shadow-sm p-1 flex">
+              <button
+                onClick={() => setActiveTab("write")}
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  activeTab === "write"
+                    ? "bg-[#861212] text-white"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Write
+              </button>
+              <button
+                onClick={() => setActiveTab("preview")}
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  activeTab === "preview"
+                    ? "bg-[#861212] text-white"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Preview
+              </button>
+            </div>
+
+            {/* Form Content */}
+            {activeTab === "write" ? (
+              <form
+                id="articleForm"
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                {/* Headline */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Headline <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("title")}
+                    className={`w-full border rounded-lg px-4 py-3 text-lg ${
+                      errors.title ? "border-red-500" : "border-gray-200"
+                    } focus:outline-none focus:ring-2 focus:ring-[#861212] focus:border-transparent transition-all`}
+                    placeholder="Enter an attention-grabbing headline..."
+                    disabled={isSubmitting}
+                  />
+                  {errors.title && (
+                    <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+                  )}
+                  <p className="text-xs text-gray-400 mt-1 text-right">
+                    {headlineChars}/200 characters
+                  </p>
+                </div>
+
+                {/* Key Details Grid */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-4">Key Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-[#861212]">
+                        <FiMapPin className="mr-2 text-gray-400" />
+                        <input
+                          {...register("location")}
+                          placeholder="Location *"
+                          className="outline-none w-full"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                      {errors.location && (
+                        <p className="text-red-500 text-xs mt-1">{errors.location.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-[#861212]">
+                        <FiCalendar className="mr-2 text-gray-400" />
+                        <input
+                          {...register("date")}
+                          type="date"
+                          className="outline-none w-full"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                      {errors.date && (
+                        <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-[#861212]">
+                        <FiTag className="mr-2 text-gray-400" />
+                        <input
+                          {...register("slug")}
+                          placeholder="URL Slug *"
+                          className="outline-none w-full"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                      {errors.slug && (
+                        <p className="text-red-500 text-xs mt-1">{errors.slug.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-[#861212]">
+                        <FiUser className="mr-2 text-gray-400" />
+                        <input
+                          {...register("author")}
+                          placeholder="Author"
+                          className="outline-none w-full"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sub headline */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sub Headline <span className="text-gray-400">(optional)</span>
+                  </label>
+                  <input
+                    {...register("subHeadline")}
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#861212]"
+                    placeholder="Add a brief summary or context..."
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                {/* Content Editor */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Story Content <span className="text-red-500">*</span>
+                  </label>
+                  <RichTextEditor value={content} onChange={setContent} />
+                  {(!content || content === "<p></p>") && (
+                    <p className="text-red-500 text-sm mt-1">Content is required</p>
+                  )}
+                </div>
+
+                {/* Images Section */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Images <span className="text-red-500">*</span>
+                    </label>
+                    {selectedImages.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const caption = prompt("Enter caption for selected images");
+                            if (caption) handleBulkMetadataUpdate("caption", caption);
+                          }}
+                          className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg flex items-center gap-1"
+                        >
+                          <FiEdit3 /> Add Caption
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const credit = prompt("Enter credit for selected images");
+                            if (credit) handleBulkMetadataUpdate("credit", credit);
+                          }}
+                          className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg flex items-center gap-1"
+                        >
+                          <FiUser /> Add Credit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={removeSelectedImages}
+                          className="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg flex items-center gap-1"
+                        >
+                          <FiTrash2 /> Delete ({selectedImages.length})
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Image Grid */}
+                  {images.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                      {images.map((img) => (
+                        <motion.div
+                          key={img.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="relative group"
+                        >
+                          <div className="relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200">
+                            <Image
+                              src={img.preview}
+                              alt={img.caption || "Upload preview"}
+                              fill
+                              className="object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            
+                            {/* Selection checkbox */}
+                            <input
+                              type="checkbox"
+                              checked={img.selected}
+                              onChange={() =>
+                                setImages((prev) =>
+                                  prev.map((i) =>
+                                    i.id === img.id ? { ...i, selected: !i.selected } : i
+                                  )
+                                )
+                              }
+                              className="absolute top-2 left-2 w-4 h-4 z-10 cursor-pointer"
+                            />
+
+                            {/* Remove button */}
+                            <button
+                              type="button"
+                              onClick={() => setImages((prev) => prev.filter((i) => i.id !== img.id))}
+                              className="absolute top-2 right-2 bg-black/60 text-white p-1 rounded-full hover:bg-black/80 transition-colors z-10"
+                            >
+                              <FiXCircle className="w-4 h-4" />
+                            </button>
+
+                            {/* Metadata inputs */}
+                            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                              <input
+                                placeholder="Caption *"
+                                value={img.caption}
+                                onChange={(e) => handleImageMetadataUpdate(img.id, "caption", e.target.value)}
+                                className={`w-full text-xs p-1 rounded mb-1 ${
+                                  !img.caption ? "bg-red-100 border border-red-300" : "bg-white"
+                                }`}
+                              />
+                              <input
+                                placeholder="Credit *"
+                                value={img.credit}
+                                onChange={(e) => handleImageMetadataUpdate(img.id, "credit", e.target.value)}
+                                className={`w-full text-xs p-1 rounded ${
+                                  !img.credit ? "bg-red-100 border border-red-300" : "bg-white"
+                                }`}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Status indicators */}
+                          {(!img.caption || !img.credit) && (
+                            <div className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+                              !
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Upload Area */}
+                  <div
+                    {...getRootProps()}
+                    className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+                      isDragActive
+                        ? "border-[#861212] bg-red-50"
+                        : "border-gray-300 hover:border-[#861212] hover:bg-gray-50"
+                    } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <input {...getInputProps()} disabled={isSubmitting} />
+                    <FiUploadCloud className="mx-auto text-4xl text-gray-400 mb-3" />
+                    <p className="text-sm font-medium text-gray-700 mb-1">
+                      {isDragActive ? "Drop images here" : "Drag & drop images or click to browse"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Supported formats: JPG, PNG, GIF (Max 10MB each)
+                    </p>
+                  </div>
+                </div>
+
+                {/* Optional Fields */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-4">Additional Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2">
+                      <FiMessageSquare className="mr-2 text-gray-400" />
+                      <input
+                        placeholder="Add a quote (optional)"
+                        className="w-full outline-none"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2">
+                      <FiHash className="mr-2 text-gray-400" />
+                      <input
+                        placeholder="Key fact or number (optional)"
+                        className="w-full outline-none"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2">
+                      <FiGlobe className="mr-2 text-gray-400" />
+                      <input
+                        {...register("source")}
+                        placeholder="Source URL (optional)"
+                        className="w-full outline-none"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </form>
+            ) : (
+              // Preview Mode
+              <div className="bg-white rounded-xl shadow-sm p-8 prose max-w-none">
+                <h1 className="text-4xl font-bold mb-4">{watch("title") || "Untitled"}</h1>
+                {watch("subHeadline") && (
+                  <h2 className="text-xl text-gray-600 mb-6">{watch("subHeadline")}</h2>
+                )}
+                <div className="flex items-center gap-4 text-sm text-gray-500 mb-8">
+                  <span>{watch("author") || "Admin"}</span>
+                  <span>•</span>
+                  <span>{watch("date") ? new Date(watch("date")).toLocaleDateString() : "Date not set"}</span>
+                  <span>•</span>
+                  <span>{watch("location") || "Location not set"}</span>
+                </div>
+                {images.length > 0 && (
+                  <div className="mb-8">
+                    <Image
+                      src={images[0].preview}
+                      alt={images[0].caption || "Featured image"}
+                      width={800}
+                      height={400}
+                      className="rounded-lg object-cover w-full"
+                    />
+                    {images[0].caption && (
+                      <p className="text-sm text-gray-500 mt-2">{images[0].caption} {images[0].credit && `- ${images[0].credit}`}</p>
+                    )}
+                  </div>
+                )}
+                <div dangerouslySetInnerHTML={{ __html: content || "<p>No content yet...</p>" }} />
+              </div>
+            )}
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            {/* Category Selection */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Category <span className="text-red-500">*</span>
+              </label>
+              <select
+                {...register("category")}
+                className={`w-full border rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#861212] ${
+                  errors.category ? "border-red-500" : "border-gray-200"
+                }`}
+                disabled={isSubmitting}
+              >
+                <option value="">Select a category</option>
+                {categoryOptions.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+              {errors.category && (
+                <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
               )}
             </div>
 
-            {/* Row inputs */}
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <div className={`flex items-center border ${
-                  errors.location ? "border-red-500" : "border-[#E7E7E7]"
-                } px-3 py-2 rounded focus-within:ring-2 focus-within:ring-[#861212]`}>
-                  <FiMapPin className="mr-2 text-gray-400" />
-                  <input
-                    {...register("location")}
-                    placeholder="Where? *"
-                    className="outline-none w-full"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                {errors.location && (
-                  <p className="text-red-500 text-sm mt-1">{errors.location.message}</p>
-                )}
-              </div>
-
-              <div className="flex-1">
-                <div className={`flex items-center border ${
-                  errors.date ? "border-red-500" : "border-[#E7E7E7]"
-                } px-3 py-2 rounded focus-within:ring-2 focus-within:ring-[#861212]`}>
-                  <FiCalendar className="mr-2 text-gray-400" />
-                  <input
-                    {...register("date")}
-                    type="date"
-                    placeholder="When? *"
-                    className="outline-none w-full"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                {errors.date && (
-                  <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
-                )}
-              </div>
-
-              <div className="flex-1">
-                <div className={`flex items-center border ${
-                  errors.slug ? "border-red-500" : "border-[#E7E7E7]"
-                } px-3 py-2 rounded focus-within:ring-2 focus-within:ring-[#861212]`}>
-                  <FiTag className="mr-2 text-gray-400" />
-                  <input
-                    {...register("slug")}
-                    placeholder="Slug *"
-                    className="outline-none w-full"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                {errors.slug && (
-                  <p className="text-red-500 text-sm mt-1">{errors.slug.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Sub headline */}
-            <input
-              {...register("subHeadline")}
-              className="w-full border border-[#E7E7E7] rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#861212]"
-              placeholder="Add quick context (optional)"
-              disabled={isSubmitting}
-            />
-
-            {/* Content Editor */}
-            <div>
-              <RichTextEditor value={content} onChange={setContent} />
-              {!content || content === "<p></p>" ? (
-                <p className="text-red-500 text-sm mt-1">Content is required</p>
-              ) : null}
-            </div>
-
-            {/* Image Selection Controls */}
-            {selectedImages.length > 0 && (
-              <div className="flex items-center gap-4 bg-gray-100 p-3 rounded text-sm">
-                <span>{selectedImages.length} images selected</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const caption = prompt("Enter caption for selected images");
-                    if (caption !== null) {
-                      setImages((prev) =>
-                        prev.map((i) => (i.selected ? { ...i, caption } : i))
-                      );
-                    }
-                  }}
-                  className="text-[#861212] hover:underline"
-                  disabled={isSubmitting}
-                >
-                  Add Caption
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const credit = prompt("Enter credit for selected images");
-                    if (credit !== null) {
-                      setImages((prev) =>
-                        prev.map((i) => (i.selected ? { ...i, credit } : i))
-                      );
-                    }
-                  }}
-                  className="text-[#861212] hover:underline"
-                  disabled={isSubmitting}
-                >
-                  Give Credit
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setImages((prev) => prev.filter((i) => !i.selected))
-                  }
-                  className="text-red-600 hover:underline"
-                  disabled={isSubmitting}
-                >
-                  Delete Selected
-                </button>
-              </div>
-            )}
-
-            {/* Image Grid */}
-            <div className="grid grid-cols-3 gap-4">
-              {images.map((img) => (
-                <div
-                  key={img.id}
-                  className="relative group border border-[#E7E7E7] rounded overflow-hidden"
-                >
-                  <img
-                    src={img.preview}
-                    className="h-32 w-full object-cover"
-                    alt={img.caption || "Upload preview"}
-                  />
-                  <input
-                    type="checkbox"
-                    checked={img.selected}
-                    onChange={() =>
-                      setImages((prev) =>
-                        prev.map((i) =>
-                          i.id === img.id ? { ...i, selected: !i.selected } : i
-                        )
-                      )
-                    }
-                    className="absolute top-2 left-2 w-4 h-4 cursor-pointer"
-                    disabled={isSubmitting}
-                  />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setImages((prev) => prev.filter((i) => i.id !== img.id))
-                    }
-                    className="absolute top-2 right-2 bg-black/60 text-white px-1.5 py-0.5 rounded text-xs hover:bg-black/80"
-                    disabled={isSubmitting}
-                  >
-                    ✕
-                  </button>
-                  <input
-                    placeholder="Caption *"
-                    value={img.caption}
-                    onChange={(e) =>
-                      setImages((prev) =>
-                        prev.map((i) =>
-                          i.id === img.id ? { ...i, caption: e.target.value } : i
-                        )
-                      )
-                    }
-                    className={`w-full border-t text-xs p-1 focus:outline-none focus:ring-1 focus:ring-[#861212] ${
-                      !img.caption ? "border-red-300 bg-red-50" : ""
-                    }`}
-                    disabled={isSubmitting}
-                  />
-                  <input
-                    placeholder="Credit *"
-                    value={img.credit}
-                    onChange={(e) =>
-                      setImages((prev) =>
-                        prev.map((i) =>
-                          i.id === img.id ? { ...i, credit: e.target.value } : i
-                        )
-                      )
-                    }
-                    className={`w-full border-t text-xs p-1 focus:outline-none focus:ring-1 focus:ring-[#861212] ${
-                      !img.credit ? "border-red-300 bg-red-50" : ""
-                    }`}
-                    disabled={isSubmitting}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Image Upload */}
-            <div
-              {...getRootProps()}
-              className={`border-2 border-dashed border-[#b8b4b4] p-6 rounded-lg text-center cursor-pointer hover:border-[#861212] transition-colors ${
-                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <input {...getInputProps()} disabled={isSubmitting} />
-              <FiImage className="mx-auto text-3xl text-gray-400 mb-2" />
-              <p className="text-sm text-gray-600">
-                Drag & drop images here, or click to select *
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Supported: JPG, PNG, GIF (Caption and Credit required for each)
-              </p>
-            </div>
-
-            {/* Extra optional fields */}
-            <div className="space-y-3">
-              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
-                <FiMessageSquare className="mr-2 text-gray-400" />
-                <input
-                  placeholder="Add Quote (optional)"
-                  className="w-full outline-none"
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
-                <FiHash className="mr-2 text-gray-400" />
-                <input
-                  placeholder="Add Facts / Number (optional)"
-                  className="w-full outline-none"
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="flex items-center border border-[#E7E7E7] rounded px-3 py-2">
-                <FiLink className="mr-2 text-gray-400" />
-                <input
-                  placeholder="Source URL (optional)"
-                  className="w-full outline-none"
-                  disabled={isSubmitting}
-                />
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      {/* RIGHT SIDEBAR */}
-      <div className="hidden lg:block w-[340px] bg-white border-l border-[#E7E7E7]">
-        <div className="p-6 space-y-6">
-          {/* Category Selection */}
-          <div>
-            <label className="text-sm font-medium block mb-3">
-              Category *
-            </label>
-            <select
-              {...register("category")}
-              className={`w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#861212] ${
-                errors.category ? "border-red-500" : "border-[#E7E7E7]"
-              }`}
-              disabled={isSubmitting}
-            >
-              <option value="">Select Category</option>
-              <option value="politics">Politics</option>
-              <option value="business">Business</option>
-              <option value="world">World</option>
-              <option value="technology">Technology</option>
-              <option value="sports">Sports</option>
-              <option value="entertainment">Entertainment</option>
-            </select>
-            {errors.category && (
-              <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
-            )}
-          </div>
-
-          {/* Tags Selection */}
-          <div>
-            <label className="text-sm font-medium block mb-3">
-              Tags *
-            </label>
-            <Select
-              isMulti
-              options={tagOptions}
-              onChange={(selected) =>
-                setValue(
-                  "tags",
-                  selected.map((s) => s.value),
-                  { shouldValidate: true }
-                )
-              }
-              className={`rounded-xl ${errors.tags ? "border-red-500" : ""}`}
-              placeholder="Select tags..."
-              isDisabled={isSubmitting}
-            />
-            {errors.tags && (
-              <p className="text-red-500 text-sm mt-1">{errors.tags.message}</p>
-            )}
-          </div>
-
-          {/* Breaking News Toggle */}
-          <div className="flex items-center justify-between p-3 border border-[#E7E7E7] rounded-xl">
-            <span className="text-sm font-medium">Breaking News</span>
-            <button
-              type="button"
-              onClick={() => setBreaking(!breaking)}
-              className={`w-10 h-5 rounded-full p-px transition-colors ${
-                breaking ? "bg-[#861212]" : "bg-gray-300"
-              }`}
-              disabled={isSubmitting}
-            >
-              <div
-                className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                  breaking ? "translate-x-5" : ""
-                }`}
+            {/* Tags Selection */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Tags <span className="text-red-500">*</span>
+              </label>
+              <Select
+                isMulti
+                options={tagOptions}
+                onChange={(selected) =>
+                  setValue(
+                    "tags",
+                    selected.map((s) => s.value),
+                    { shouldValidate: true }
+                  )
+                }
+                className="react-select"
+                classNamePrefix="select"
+                placeholder="Select tags..."
+                isDisabled={isSubmitting}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderColor: errors.tags ? "#EF4444" : "#E5E7EB",
+                    borderRadius: "0.5rem",
+                    padding: "0.25rem",
+                  }),
+                }}
               />
-            </button>
-          </div>
+              {errors.tags && (
+                <p className="text-red-500 text-sm mt-1">{errors.tags.message}</p>
+              )}
+            </div>
 
-          {/* Content Stats */}
-          <div className="text-sm space-y-2 bg-gray-50 p-4 rounded-xl">
-            <p className="font-medium">Content Stats</p>
-            <div className="flex justify-between">
-              <span>Headline:</span>
-              <span className="font-mono">{headlineChars} chars</span>
+            {/* Breaking News Toggle */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Breaking News</span>
+                  <p className="text-xs text-gray-500 mt-1">Mark as urgent breaking story</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setBreaking(!breaking)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    breaking ? "bg-[#861212]" : "bg-gray-200"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      breaking ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span>Body:</span>
-              <span className="font-mono">{bodyChars} chars</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Images:</span>
-              <span className="font-mono">{images.length}</span>
-            </div>
-          </div>
 
-          {/* Validation Checklist */}
-          <div className="border-t border-[#E7E7E7] pt-4">
-            <p className="text-sm font-medium mb-3">Required Items Checklist</p>
-            <div className="text-sm space-y-2">
-              <p className={hasImage ? "text-green-600" : "text-red-500"}>
-                {hasImage ? "✔" : "○"} At least one image
-              </p>
-              <p className={allImagesHaveMetadata ? "text-green-600" : "text-red-500"}>
-                {allImagesHaveMetadata ? "✔" : "○"} All images have caption & credit
-              </p>
-              <p className={hasCategory ? "text-green-600" : "text-red-500"}>
-                {hasCategory ? "✔" : "○"} Category selected
-              </p>
-              <p className={hasLocation ? "text-green-600" : "text-red-500"}>
-                {hasLocation ? "✔" : "○"} Location
-              </p>
-              <p className={hasDate ? "text-green-600" : "text-red-500"}>
-                {hasDate ? "✔" : "○"} Date
-              </p>
-              <p className={hasSlug ? "text-green-600" : "text-red-500"}>
-                {hasSlug ? "✔" : "○"} Slug
-              </p>
-              <p className={hasTags ? "text-green-600" : "text-red-500"}>
-                {hasTags ? "✔" : "○"} At least one tag
-              </p>
-              <p className={content && content !== "<p></p>" ? "text-green-600" : "text-red-500"}>
-                {content && content !== "<p></p>" ? "✔" : "○"} Content
-              </p>
+            {/* Content Stats */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-4">Content Stats</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Headline</span>
+                  <span className="font-mono font-medium">{headlineChars} chars</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Body</span>
+                  <span className="font-mono font-medium">{bodyChars} chars</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Images</span>
+                  <span className="font-mono font-medium">{images.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Reading time</span>
+                  <span className="font-mono font-medium">{Math.max(1, Math.ceil(bodyChars / 1000))} min</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Validation Checklist */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-4">Publishing Checklist</h3>
+              <div className="space-y-2">
+                {[
+                  { label: "At least one image", valid: hasImage },
+                  { label: "All images have caption & credit", valid: allImagesHaveMetadata },
+                  { label: "Category selected", valid: hasCategory },
+                  { label: "Location specified", valid: hasLocation },
+                  { label: "Date set", valid: hasDate },
+                  { label: "URL slug generated", valid: hasSlug },
+                  { label: "At least one tag", valid: hasTags },
+                  { label: "Content added", valid: content && content !== "<p></p>" },
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">{item.label}</span>
+                    {item.valid ? (
+                      <FiCheckCircle className="text-green-500 w-5 h-5" />
+                    ) : (
+                      <FiXCircle className="text-red-500 w-5 h-5" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* SEO Preview */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-4">SEO Preview</h3>
+              <div className="space-y-2">
+                <p className="text-[#1a0dab] text-sm font-medium truncate">
+                  {watch("title") || "Story Title"}
+                </p>
+                <p className="text-[#006621] text-xs truncate">
+                  yourdomain.com/{watch("slug") || "story-slug"}
+                </p>
+                <p className="text-gray-600 text-xs line-clamp-2">
+                  {watch("subHeadline") || "Story description will appear here..."}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Image Metadata Modal */}
+      <AnimatePresence>
+        {showImageMetadataModal && selectedImageForMetadata && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowImageMetadataModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold mb-4">Edit Image Details</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Caption *
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedImageForMetadata.caption}
+                    onChange={(e) => handleImageMetadataUpdate(selectedImageForMetadata.id, "caption", e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#861212]"
+                    placeholder="Enter image caption..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Credit *
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedImageForMetadata.credit}
+                    onChange={(e) => handleImageMetadataUpdate(selectedImageForMetadata.id, "credit", e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#861212]"
+                    placeholder="Enter credit information..."
+                  />
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    onClick={() => setShowImageMetadataModal(false)}
+                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setShowImageMetadataModal(false)}
+                    className="px-4 py-2 bg-[#861212] text-white rounded-lg hover:bg-[#6a0e0e]"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

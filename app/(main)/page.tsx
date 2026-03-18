@@ -26,29 +26,29 @@ export const gridNews = Array(4).fill({
 
 export default async function Home() {
   const news = (await getCoverage("published")) || [];
-  console.log("news",news)
-  
+  console.log("news", news);
+
   /* SPLIT NEWS FOR SECTIONS */
 
- /* SPLIT NEWS FOR SECTIONS */
+  /* SPLIT NEWS FOR SECTIONS */
 
-const hero = news?.[0] || null;
+  const hero = news?.[0] || null;
 
-const sideNews = news.slice(1, 4);
+  const sideNews = news.slice(1, 4);
 
-const mostWatched = news.slice(0, 4);
+  const mostWatched = news.slice(0, 4);
 
-const trendingMain = news?.[4] || null;
+  const trendingMain = news?.[4] || null;
 
-const trendingSide = news.slice(0, 4);
+  const trendingSide = news.slice(0, 4);
 
-const trendingGrid = news.slice(0, 4);
+  const trendingGrid = news.slice(0, 4);
 
-const exploreMain = news?.[5] || null;
-const exploreSide = news.slice(6, 9);
-const exploreGrid = news.slice(9, 13);
+  const exploreMain = news?.[5] || null;
+  const exploreSide = news.slice(6, 9);
+  const exploreGrid = news.slice(9, 13);
 
-const alsoNews = news.slice(-4);
+  const alsoNews = news.slice(-4);
   const stripHtml = (html: string) => {
     if (!html) return "";
     return html.replace(/<[^>]*>/g, "");
@@ -262,7 +262,9 @@ const alsoNews = news.slice(-4);
               {/* MAIN NEWS */}
               <div className="col-span-2">
                 {exploreMain && (
-                  <>
+                  <Link
+                    href={`/category/${exploreMain.category}/${exploreMain.slug}-${exploreMain._id}`}
+                  >
                     <div>
                       <Image
                         src={exploreMain.image || "/placeholder.jpg"}
@@ -286,7 +288,7 @@ const alsoNews = news.slice(-4);
                     <p className="text-bodyM text-[#2F2F2F] mt-3 pt-3 border-t border-[#D1D1D1]">
                       {stripHtml(exploreMain.content).slice(0, 200)}...
                     </p>
-                  </>
+                  </Link>
                 )}
               </div>
 
@@ -316,38 +318,42 @@ const alsoNews = news.slice(-4);
               </div>
             </div>
 
-            {/* GRID NEWS */}
+            {/* GRID NEWS - 🔥 LINK ADDED HERE */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8 lg:mt-12">
               {exploreGrid.map((item: any) => (
-                <div key={item._id}>
-                  <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
-                    <Image
-                      src={item.image || "/placeholder.jpg"}
-                      alt={item.title}
-                      width={300}
-                      height={200}
-                      className="w-full h-full object-cover rounded-md"
-                    />
+                <Link
+                  key={item._id}
+                  href={`/category/${item.category}/${item.slug}-${item._id}`}
+                >
+                  <div>
+                    <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                      <Image
+                        src={item.image || "/placeholder.jpg"}
+                        alt={item.title}
+                        width={300}
+                        height={200}
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                    </div>
+
+                    <h3 className="font-heading font-bold text-h5 mt-4">
+                      {item.title}
+                    </h3>
+
+                    <p className="text-micro text-label mt-2">
+                      ● {item.source || "News"} •{" "}
+                      {new Date(item.publishedAt).toLocaleDateString()} • 4 Min
+                      Read
+                    </p>
+
+                    <p className="text-bodyM text-gray-600 mt-3">
+                      {stripHtml(item.content).slice(0, 120)}...
+                    </p>
                   </div>
-
-                  <h3 className="font-heading font-bold text-h5 mt-4">
-                    {item.title}
-                  </h3>
-
-                  <p className="text-micro text-label mt-2">
-                    ● {item.source || "News"} •{" "}
-                    {new Date(item.publishedAt).toLocaleDateString()} • 4 Min
-                    Read
-                  </p>
-
-                  <p className="text-bodyM text-gray-600 mt-3">
-                    {stripHtml(item.content).slice(0, 120)}...
-                  </p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
-
           {/* ALSO IN NEWS */}
           <div className="pb-20 px-4 lg:px-0">
             <SectionHeader title="Also In News" />

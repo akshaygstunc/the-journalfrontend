@@ -44,7 +44,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       <div className="w-full max-w-md bg-white shadow-xl rounded-xl p-10 border border-gray-200">
 
         <h1 className="text-3xl font-bold text-center mb-2">
-          The Journal
+          SOPHIE MEDIA
         </h1>
 
         <p className="text-center text-gray-500 mb-8">

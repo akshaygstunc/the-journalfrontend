@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "The Journal",
+  title: "SOPHIE MEDIA",
   description: "Latest news and updates",
 };
 

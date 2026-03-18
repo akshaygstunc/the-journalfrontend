@@ -2,12 +2,12 @@
 
 const tabs = [
   { label: "Upcoming", value: "upcoming" },
-  { label: "Assigned", value: "assigned" },
+  // { label: "Assigned", value: "assigned" },
   // { label: "Field", value: "field" },
-  { label: "Desk Review", value: "desk_review" },
+  // { label: "Desk Review", value: "desk_review" },
   // { label: "Digital Edit", value: "digital_edit" },
-  { label: "Copy Edit", value: "copy_edit" },
-  { label: "Ready to Publish", value: "ready_to_publish" },
+  // { label: "Copy Edit", value: "copy_edit" },
+  // { label: "Ready to Publish", value: "ready_to_publish" },
 ];
 
 export default function StatusTabs({ status, setStatus }: any) {
