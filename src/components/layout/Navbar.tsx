@@ -98,79 +98,87 @@ export default function Navbar() {
           </button>
 
           <h1 className="text-[24px] font-bold text-[#861212] tracking-wide">
-            <Link
-              href={`/`}
-              className={`font-body pb-1 transition-colors duration-200`}
-            >
-              THE JOURNAL
+            <Link href="/">
+              <Image
+                src="/images/logo.png"
+                alt="Sophie Media"
+                width={100}
+                height={120}
+                className="h-16 w-auto object-contain scale-150"
+                priority
+              />
             </Link>
           </h1>
 
           <button onClick={() => setMobileSearchOpen(!mobileSearchOpen)}>
-    <FiSearch size={22} />
-  </button>
-   {mobileSearchOpen && (
-    <div className="absolute top-full left-0 w-full bg-white border-t border-gray-200 p-4 z-50">
-      <div className="flex gap-2 items-center border border-[#D1D1D1] rounded-md px-4 py-2 bg-white">
-        <FaSearch className="text-gray-500" />
+            <FiSearch size={22} />
+          </button>
+          {mobileSearchOpen && (
+            <div className="absolute top-full left-0 w-full bg-white border-t border-gray-200 p-4 z-50">
+              <div className="flex gap-2 items-center border border-[#D1D1D1] rounded-md px-4 py-2 bg-white">
+                <FaSearch className="text-gray-500" />
 
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search"
-          className="w-full outline-none text-sm"
-        />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search"
+                  className="w-full outline-none text-sm"
+                />
 
-        <button
-          onClick={() => {
-            setMobileSearchOpen(false);
-            setQuery("");
-            setResults([]);
-          }}
-        >
-          <IoClose size={20} />
-        </button>
-      </div>
+                <button
+                  onClick={() => {
+                    setMobileSearchOpen(false);
+                    setQuery("");
+                    setResults([]);
+                  }}
+                >
+                  <IoClose size={20} />
+                </button>
+              </div>
 
-      {/* Results */}
-      {query && (
-        <div className="mt-4 bg-white border border-[#E5E5E5] rounded-lg shadow-lg p-4">
-          {loading && <p className="text-sm text-gray-500">Searching...</p>}
+              {/* Results */}
+              {query && (
+                <div className="mt-4 bg-white border border-[#E5E5E5] rounded-lg shadow-lg p-4">
+                  {loading && (
+                    <p className="text-sm text-gray-500">Searching...</p>
+                  )}
 
-          {!loading && results.length === 0 && (
-            <p className="text-sm text-gray-500">No results found</p>
-          )}
+                  {!loading && results.length === 0 && (
+                    <p className="text-sm text-gray-500">No results found</p>
+                  )}
 
-          <div className="space-y-4">
-            {results.map((item: any) => (
-              <Link
-                key={item._id}
-                href={`/category/${item.category}/${item._id}`}
-                onClick={() => {
-                  setMobileSearchOpen(false);
-                  setQuery("");
-                }}
-              >
-                <div className="border-b pb-3 hover:bg-gray-50 cursor-pointer p-2 rounded">
-                  <p className="text-xs text-gray-500 mb-1">Article</p>
+                  <div className="space-y-4">
+                    {results.map((item: any) => (
+                      <Link
+                        key={item._id}
+                        href={`/category/${item.category}/${item._id}`}
+                        onClick={() => {
+                          setMobileSearchOpen(false);
+                          setQuery("");
+                        }}
+                      >
+                        <div className="border-b pb-3 hover:bg-gray-50 cursor-pointer p-2 rounded">
+                          <p className="text-xs text-gray-500 mb-1">Article</p>
 
-                  <h3 className="font-semibold text-sm leading-5">
-                    {item.title}
-                  </h3>
+                          <h3 className="font-semibold text-sm leading-5">
+                            {item.title}
+                          </h3>
 
-                  <p className="text-xs text-gray-500 mt-1">{item.source}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {item.source}
+                          </p>
 
-                  <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                    {item.summary}
-                  </p>
+                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                            {item.summary}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )}
+              )}
+            </div>
+          )}
         </div>
 
         {/* SECOND ROW */}
@@ -279,14 +287,18 @@ export default function Navbar() {
             </div>
           )}
 
-          <h1 className="font-bold text-[40px] text-[#861212] tracking-wide">
-            <Link
-              href={`/`}
-              className={`font-body pb-1 transition-colors duration-200`}
-            >
-              THE JOURNAL
+          <div className="flex items-center justify-center flex-1 overflow-hidden">
+            <Link href="/">
+              <Image
+                src="/images/logo.png"
+                alt="Sophie Media"
+                width={100}
+                height={120}
+                className="h-16 w-auto object-contain scale-150"
+                priority
+              />
             </Link>
-          </h1>
+          </div>
 
           <div className="flex gap-3">
             <Link
@@ -437,11 +449,15 @@ export default function Navbar() {
         <div className="flex justify-between items-center px-5 py-4 border-b">
           <span className="font-bold text-[#861212]">
             {" "}
-            <Link
-              href={`/`}
-              className={`font-body pb-1 transition-colors duration-200`}
-            >
-              THE JOURNAL
+            <Link href="/">
+              <Image
+                src="/images/logo.png"
+                alt="Sophie Media"
+                width={100}
+                height={120}
+                className="h-16 w-auto object-contain scale-150"
+                priority
+              />
             </Link>
           </span>
           <button onClick={() => setMobileMenuOpen(false)}>✕</button>
@@ -467,17 +483,17 @@ export default function Navbar() {
           {!isLoggedIn ? (
             <div className="flex flex-col text-center gap-3">
               <Link
-              href="/login"
-              className="border border-[#861212] text-[#861212] px-4 py-1 rounded-md hover:bg-[#861212] hover:text-white transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="bg-[#861212] text-white px-4 py-1 rounded-md hover:bg-[#6e0f0f] transition-colors"
-            >
-              Sign Up
-            </Link>
+                href="/login"
+                className="border border-[#861212] text-[#861212] px-4 py-1 rounded-md hover:bg-[#861212] hover:text-white transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="bg-[#861212] text-white px-4 py-1 rounded-md hover:bg-[#6e0f0f] transition-colors"
+              >
+                Sign Up
+              </Link>
             </div>
           ) : (
             <button

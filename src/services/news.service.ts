@@ -46,3 +46,20 @@ export const updateStatus = async (id: string, status: string) => {
     body: JSON.stringify({ status }),
   });
 };
+
+const api1 =  "https://mistress-graduation-carriers-george.trycloudflare.com/news";
+export async function updateStory(id: string, data: any) {
+  const response = await fetch(`${api1}/news/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update story");
+  }
+
+  return response.json();
+}
