@@ -14,6 +14,7 @@ import {
   ignoreStory,
   updateStatus,
 } from "@/src/services/news.service";
+import EditStoryModal from "../components/EditStoryModal";
 
 export default function CoveragePage() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function CoveragePage() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(9);
   const [loading, setLoading] = useState(false);
+  
   useEffect(() => {
     loadStories();
   }, [status]);
@@ -33,7 +35,6 @@ export default function CoveragePage() {
   const loadStories = async () => {
     try {
       setLoading(true);
-
       const data = await getCoverage(status);
 
       const formatted = data.map((item: any) => ({
@@ -56,7 +57,6 @@ export default function CoveragePage() {
   };
 
   const totalPages = Math.ceil(stories.length / perPage);
-
   const paginatedStories = stories.slice((page - 1) * perPage, page * perPage);
 
   return (
@@ -86,7 +86,7 @@ export default function CoveragePage() {
 
       <div className="bg-[#F6F6F6] min-h-screen p-6">
         <StatusTabs status={status} setStatus={setStatus} />
-
+        
         {/* ACTIVE INACTIVE */}
         <div className="flex items-center justify-between gap-3 mb-4">
           <div>
@@ -115,21 +115,17 @@ export default function CoveragePage() {
 
           <div className="flex gap-3 items-center mt-4">
             <span className="text-[#6D6D6D]">Sort By</span>
-
             <input
               placeholder="Search here..."
               className="border rounded border-[#E7E7E7] px-4 py-2 w-64"
             />
-
             <select className="border px-3 py-2 rounded border-[#E7E7E7]">
               <option>Newest</option>
               <option>Oldest</option>
             </select>
-
             <button className="border px-4 py-2 rounded border-[#E7E7E7]">
               Filter
             </button>
-
             <button
               onClick={() => setView(view === "grid" ? "table" : "grid")}
               className="border px-4 py-3 rounded border-[#E7E7E7]"
@@ -155,10 +151,10 @@ export default function CoveragePage() {
             status={status}
           />
         )}
+        
         <StoryPreviewDrawer />
-
         <AssignStoryModal reload={loadStories} />
-
+        <EditStoryModal reload={loadStories} />
         <Pagination
           page={page}
           setPage={setPage}
@@ -171,6 +167,7 @@ export default function CoveragePage() {
   );
 }
 
+// Tag Component
 function Tag({ type }: { type: string }) {
   const styles: any = {
     featured: "bg-[#1ABCFE21] text-[#1791C3] font-semibold",
@@ -179,46 +176,63 @@ function Tag({ type }: { type: string }) {
   };
 
   return (
-    <span className={`text-xs px-2 py-1 rounded-xl ${styles[type]}`}>
+    <span className={`text-xs px-2 py-1 rounded-xl ${styles[type] || styles.breaking}`}>
       {type}
     </span>
   );
 }
 
+// Grid View
 function GridView({ stories, reload, status }: any) {
-  const { handlePreview, handleAssign, handleIgnore, moveStatus } =
+  const { handlePreview, handleAssign, handleIgnore, moveStatus, handleEdit } =
     useStoryActions(reload);
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {stories.map((story: any) => (
         <div
           key={story.id}
-          className="bg-white border border-[#E2E8F0] p-4 rounded-xl flex flex-col justify-between min-h-[200px] hover:shadow-md transition cursor-pointer"
-          onClick={() => handlePreview(story)}
+          className="bg-white border border-[#E2E8F0] p-4 rounded-xl flex flex-col justify-between min-h-[200px] hover:shadow-md transition"
         >
-          <div>
+          {/* Clickable preview area */}
+          <div 
+            className="cursor-pointer"
+            onClick={() => handlePreview(story)}
+          >
             <Tag type={story.tag} />
-
             <h3 className="mt-3 text-[18px] font-semibold text-[#212121] line-clamp-2 break-words">
               {story.title}
             </h3>
-
-            {/* {story.content && ( */}
-              <p className="text-sm text-[#6D6D6D] mt-2 line-clamp-2 break-words">
-                {story.description || "No Summary"}
-              </p>
-            {/* )} */}
-
+            <p className="text-sm text-[#6D6D6D] mt-2 line-clamp-2 break-words">
+              {story.description || "No Summary"}
+            </p>
             <div className="text-xs mt-3 flex gap-2">
               <span className="text-[#0727CC] font-medium border-r pr-2 border-[#E7E7E7]">
                 SOURCE: {story.source}
               </span>
-
               <span className="text-gray-400">{story.time}</span>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-4 text-sm border-t pt-3 border-[#E7E7E7]">
+          {/* Button container */}
+          <div 
+            className="flex justify-end gap-3 mt-4 text-sm border-t pt-3 border-[#E7E7E7]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* EDIT BUTTON - Always visible */}
+            <button
+              type="button"
+              className="text-blue-600 hover:text-blue-800 font-medium"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleEdit(story);
+              }}
+            >
+              Edit
+            </button>
+
+            {/* Status based buttons */}
             {status === "upcoming" && (
               <>
                 <button
@@ -226,22 +240,34 @@ function GridView({ stories, reload, status }: any) {
                   className="text-gray-500"
                   onClick={(e) => {
                     e.stopPropagation();
+                    e.preventDefault();
                     handleIgnore(e, story);
                   }}
                 >
                   Ignore
                 </button>
-
-                <button
+                {/* <button
                   type="button"
                   className="border px-3 py-1 rounded"
                   onClick={(e) => {
                     e.stopPropagation();
+                    e.preventDefault();
                     handleAssign(e, story);
                   }}
                 >
                   Assign
-                </button>
+                </button> */}
+                 <button
+    type="button"
+    className="border px-3 py-1 rounded bg-green-100"
+    onClick={(e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      moveStatus(e, story, "published");
+    }}
+  >
+    Publish
+  </button>
               </>
             )}
 
@@ -251,10 +277,11 @@ function GridView({ stories, reload, status }: any) {
                 className="border px-3 py-1 rounded bg-blue-50"
                 onClick={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   moveStatus(e, story, "desk_review");
                 }}
               >
-                Move to Desk Review
+                Desk Review
               </button>
             )}
 
@@ -264,10 +291,11 @@ function GridView({ stories, reload, status }: any) {
                 className="border px-3 py-1 rounded bg-purple-50"
                 onClick={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   moveStatus(e, story, "copy_edit");
                 }}
               >
-                Move to Copy Edit
+                Copy Edit
               </button>
             )}
 
@@ -277,6 +305,7 @@ function GridView({ stories, reload, status }: any) {
                 className="border px-3 py-1 rounded bg-green-50"
                 onClick={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   moveStatus(e, story, "ready_to_publish");
                 }}
               >
@@ -290,6 +319,7 @@ function GridView({ stories, reload, status }: any) {
                 className="border px-3 py-1 rounded bg-green-100"
                 onClick={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   moveStatus(e, story, "published");
                 }}
               >
@@ -303,9 +333,11 @@ function GridView({ stories, reload, status }: any) {
   );
 }
 
+// Table View
 function TableView({ stories, reload }: any) {
-  const { handlePreview, handleAssign, handleIgnore, moveStatus } =
+  const { handlePreview, handleAssign, handleIgnore, moveStatus, handleEdit } =
     useStoryActions(reload);
+    
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden">
       <table className="w-full text-sm">
@@ -324,7 +356,7 @@ function TableView({ stories, reload }: any) {
           {stories.map((story: any) => (
             <tr key={story.id} className="border-t border-[#E7E7E7]">
               <td
-                className="p-3 text-[#212121] font-semibold"
+                className="p-3 text-[#212121] font-semibold cursor-pointer"
                 onClick={() => handlePreview(story)}
               >
                 {story.title}
@@ -335,22 +367,39 @@ function TableView({ stories, reload }: any) {
               </td>
 
               <td className="text-[#6D6D6D]">Economy</td>
-
               <td className="text-[#6D6D6D]">Today</td>
+              <td className="text-[#6D6D6D]">{story.source}</td>
 
-              <td className="text-[#6D6D6D]">Reuters News Wire</td>
-
-              <td>
+              <td className="flex gap-2 items-center">
                 <button
-                  className="text-gray-500 px-4"
-                  onClick={(e) => handleIgnore(e, story)}
+                  className="text-blue-600 hover:text-blue-800"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleEdit(story);
+                  }}
+                >
+                  Edit
+                </button>
+
+                <button
+                  className="text-gray-500"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleIgnore(e, story);
+                  }}
                 >
                   Ignore
                 </button>
 
                 <button
                   className="border border-[#E7E7E7] px-3 py-1 rounded"
-                  onClick={(e) => handleAssign(e, story)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleAssign(e, story);
+                  }}
                 >
                   Assign
                 </button>
@@ -363,15 +412,22 @@ function TableView({ stories, reload }: any) {
   );
 }
 
+// Custom Hook for Actions
 function useStoryActions(reload: any) {
-  const { openPreview, openAssign } = useUIStore();
+  const { openPreview, openAssign, openEdit } = useUIStore();
 
   const handlePreview = (story: any) => {
     openPreview(story);
   };
 
+  const handleEdit = (story: any) => {
+    console.log("✏️ Edit clicked for:", story.title);
+    openEdit(story);
+  };
+
   const handleAssign = (e: React.MouseEvent<HTMLButtonElement>, story: any) => {
     e.stopPropagation();
+    e.preventDefault();
     openAssign(story);
   };
 
@@ -380,10 +436,10 @@ function useStoryActions(reload: any) {
     story: any,
   ) => {
     e.stopPropagation();
+    e.preventDefault();
 
     try {
       await ignoreStory(story.id);
-
       reload();
     } catch (err) {
       console.error("Ignore error", err);
@@ -396,10 +452,10 @@ function useStoryActions(reload: any) {
     nextStatus: string,
   ) => {
     e.stopPropagation();
+    e.preventDefault();
 
     try {
       await updateStatus(story.id, nextStatus);
-
       reload();
     } catch (err) {
       console.error("Status update error", err);
@@ -411,9 +467,11 @@ function useStoryActions(reload: any) {
     handleAssign,
     handleIgnore,
     moveStatus,
+    handleEdit,
   };
 }
 
+// Loading Skeleton
 function GridSkeleton() {
   return (
     <div className="grid grid-cols-3 gap-6">
@@ -423,13 +481,10 @@ function GridSkeleton() {
           className="bg-white border border-[#E2E8F0] p-4 rounded-xl animate-pulse"
         >
           <div className="w-16 h-5 bg-gray-200 rounded mb-3"></div>
-
           <div className="h-5 bg-gray-200 rounded mb-2"></div>
           <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-
           <div className="h-4 bg-gray-200 rounded mb-2"></div>
           <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-
           <div className="flex justify-between mt-4">
             <div className="w-20 h-4 bg-gray-200 rounded"></div>
             <div className="w-16 h-4 bg-gray-200 rounded"></div>

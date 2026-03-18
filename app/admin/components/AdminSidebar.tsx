@@ -70,7 +70,7 @@ export default function AdminSidebar() {
           </span>
         </div>
         <span className="text-[16px] font-semibold text-[#212121]">
-          The Journal
+          SOPHIE MEDIA
         </span>
       </div>
 

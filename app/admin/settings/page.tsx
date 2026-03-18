@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState({
-    siteName: "The Journal",
+    siteName: "SOPHIE MEDIA",
     defaultAuthor: "Marcus Chan",
     autoSave: true,
     notifications: true,

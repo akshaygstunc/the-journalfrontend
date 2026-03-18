@@ -27,7 +27,7 @@ const handleLogout = async () => {
           </span>
         </div>
         <span className="text-[18px] font-semibold text-[#212121]">
-          The Journal
+          SOPHIE MEDIA
         </span>
       </div>
 

@@ -28,7 +28,6 @@ export default async function CategorySubPage({
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4">
           {news.title}
         </h1>
-
         {/* Summary */}
         <p className="text-lg text-gray-600 mb-6">{news.summary}</p>
 

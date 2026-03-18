@@ -44,7 +44,7 @@ export default function StoryPreviewDrawer() {
 
         {/* JOURNAL BRAND */}
         <div className="text-center text-[#8B1A1A] font-bold text-xl mb-6">
-          THE JOURNAL
+          SOPHIE MEDIA
         </div>
 
         {/* TITLE */}
