@@ -1,3 +1,4 @@
+import ArticleContent from "@/src/components/ArticleContent";
 import { getNewsById } from "@/src/lib/api/news";
 import Image from "next/image";
 
@@ -54,11 +55,7 @@ export default async function CategorySubPage({
         </div>
 
         {/* Content */}
-        <div className="prose prose-lg max-w-none text-gray-800">
-          {news.content.split("\n").map((para: string, i: number) => (
-            <p key={i}>{para}</p>
-          ))}
-        </div>
+       <ArticleContent content={news.content} />
 
         {/* Tags */}
         {news.tags?.length > 0 && (

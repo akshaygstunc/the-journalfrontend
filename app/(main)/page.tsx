@@ -29,21 +29,25 @@ export default async function Home() {
 
   /* SPLIT NEWS FOR SECTIONS */
 
-  const hero = news[0];
-  console.log("hero", news, ".......................", hero);
-  const sideNews = news.slice(1, 4);
-  console.log("sidenws", sideNews);
-  const mostWatched = news.slice(0, 4);
-  console.log("mostwast", mostWatched);
-  const trendingMain = news[4];
-  const trendingSide = news.slice(0, 4);
-  const trendingGrid = news.slice(0, 4);
+ /* SPLIT NEWS FOR SECTIONS */
 
+const hero = news?.[0] || null;
 
-  
-  const alsoNews = news.slice(-4);
+const sideNews = news.slice(1, 4);
 
-  
+const mostWatched = news.slice(0, 4);
+
+const trendingMain = news?.[4] || null;
+
+const trendingSide = news.slice(0, 4);
+
+const trendingGrid = news.slice(0, 4);
+
+const exploreMain = news?.[5] || null;
+const exploreSide = news.slice(6, 9);
+const exploreGrid = news.slice(9, 13);
+
+const alsoNews = news.slice(-4);
   const stripHtml = (html: string) => {
     if (!html) return "";
     return html.replace(/<[^>]*>/g, "");
@@ -254,170 +258,92 @@ export default async function Home() {
             <SectionHeader title="Explore More" />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:mt-8">
+              {/* MAIN NEWS */}
               <div className="col-span-2">
-                <div>
-                  <Image src={em} alt="news-image" />
-                </div>
+                {exploreMain && (
+                  <>
+                    <div>
+                      <Image
+                        src={exploreMain.image || "/placeholder.jpg"}
+                        alt={exploreMain.title}
+                        width={900}
+                        height={500}
+                        className="w-full object-cover rounded-md"
+                      />
+                    </div>
 
-                <h4 className="font-heading font-bold text-[24px] mt-6">
-                  Gen Z toppled an autocrat - but old guard tipped to win
-                  Bangladesh vote
-                </h4>
+                    <h4 className="font-heading font-bold text-[24px] mt-6">
+                      {exploreMain.title}
+                    </h4>
 
-                <p className="text-[12px] text-[#4F4F4F] mt-3">
-                  ● BBC • 3h ago • 4 Min Read
-                </p>
+                    <p className="text-[12px] text-[#4F4F4F] mt-3">
+                      ● {exploreMain.source || "News"} •{" "}
+                      {new Date(exploreMain.publishedAt).toLocaleDateString()} •
+                      4 Min Read
+                    </p>
 
-                <p className="text-bodyM text-[#2F2F2F] mt-3 pt-3 border-t border-[#D1D1D1]">
-                  Rahat Hossain was almost killed trying to save his friend in a
-                  youth uprising that became one of the bloodiest episodes in
-                  Bangladesh's history. Footage of him trying to pull Emam Hasan
-                  Taim Bhuiyan, who'd been shot by police, to safety went viral
-                  during a revolution that toppled the country's leader.
-                </p>
+                    <p className="text-bodyM text-[#2F2F2F] mt-3 pt-3 border-t border-[#D1D1D1]">
+                      {stripHtml(exploreMain.content).slice(0, 200)}...
+                    </p>
+                  </>
+                )}
               </div>
 
+              {/* SIDE NEWS */}
               <div className="space-y-8">
-                <div className="pb-6">
-                  <h3 className="font-heading font-bold text-[18px] text-heading">
-                    Philomena Cunk Is Weird Enough to Take on the World
-                  </h3>
+                {exploreSide.map((item: any) => (
+                  <div key={item._id} className="pb-6">
+                    <Link
+                      href={`/category/${item.category}/${item.slug}-${item._id}`}
+                    >
+                      <h3 className="font-heading font-bold text-[18px] text-heading">
+                        {item.title}
+                      </h3>
 
-                  <p className="text-micro text-label mt-2 border-b pb-2 border-[#D1D1D1] ">
-                    ● BBC • 3h ago • 4 Min Read
-                  </p>
+                      <p className="text-micro text-label mt-2 border-b pb-2 border-[#D1D1D1]">
+                        ● {item.source || "News"} •{" "}
+                        {new Date(item.publishedAt).toLocaleDateString()} • 4
+                        Min Read
+                      </p>
 
-                  <p className="text-bodyM text-gray-600 mt-3">
-                    Lorem Ipsum is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
-                    standard dummy text ever since the dummy text ever since the
-                    Philomena Cunk Is{" "}
-                  </p>
-                </div>
-                <div className="pb-6">
-                  <h3 className="font-heading font-bold text-[18px] text-heading">
-                    Philomena Cunk Is Weird Enough to Take on the World
-                  </h3>
-
-                  <p className="text-micro text-label mt-2 border-b pb-2 border-[#D1D1D1]">
-                    ● BBC • 3h ago • 4 Min Read
-                  </p>
-
-                  <p className="text-bodyM text-gray-600 mt-3">
-                    Lorem Ipsum is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
-                    standard dummy text ever since the dummy text ever since the
-                    Philomena Cunk Is{" "}
-                  </p>
-                </div>
-                <div className="pb-6">
-                  <h3 className="font-heading font-bold text-[18px] text-heading">
-                    Philomena Cunk Is Weird Enough to Take on the World
-                  </h3>
-
-                  <p className="text-micro text-label mt-2 border-b pb-2 border-[#D1D1D1]">
-                    ● BBC • 3h ago • 4 Min Read
-                  </p>
-
-                  <p className="text-bodyM text-gray-600 mt-3">
-                    Lorem Ipsum is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry's
-                    standard dummy text ever since the dummy text ever since the
-                    Philomena Cunk Is{" "}
-                  </p>
-                </div>
+                      <p className="text-bodyM text-gray-600 mt-3">
+                        {stripHtml(item.content).slice(0, 130)}...
+                      </p>
+                    </Link>
+                  </div>
+                ))}
               </div>
             </div>
 
+            {/* GRID NEWS */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8 lg:mt-12">
-              <div>
-                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
-                  <Image
-                    src={em1}
-                    alt="news-image"
-                    className="w-full h-full object-cover rounded-md"
-                  />
+              {exploreGrid.map((item: any) => (
+                <div key={item._id}>
+                  <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
+                    <Image
+                      src={item.image || "/placeholder.jpg"}
+                      alt={item.title}
+                      width={300}
+                      height={200}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  </div>
+
+                  <h3 className="font-heading font-bold text-h5 mt-4">
+                    {item.title}
+                  </h3>
+
+                  <p className="text-micro text-label mt-2">
+                    ● {item.source || "News"} •{" "}
+                    {new Date(item.publishedAt).toLocaleDateString()} • 4 Min
+                    Read
+                  </p>
+
+                  <p className="text-bodyM text-gray-600 mt-3">
+                    {stripHtml(item.content).slice(0, 120)}...
+                  </p>
                 </div>
-
-                <h3 className="font-heading font-bold text-h5 mt-4">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
-
-                <p className="text-micro text-label mt-2">
-                  ● BBC • 3h ago • 4 Min Read
-                </p>
-
-                <p className="text-bodyM text-gray-600 mt-3">
-                  The new Netflix show looks like an ambitious BBC
-                  documentary...
-                </p>
-              </div>
-              <div>
-                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
-                  <Image
-                    src={em2}
-                    alt="news-image"
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                </div>
-
-                <h3 className="font-heading font-bold text-h5 mt-4">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
-
-                <p className="text-micro text-label mt-2">
-                  ● BBC • 3h ago • 4 Min Read
-                </p>
-
-                <p className="text-bodyM text-gray-600 mt-3">
-                  The new Netflix show looks like an ambitious BBC
-                  documentary...
-                </p>
-              </div>
-              <div>
-                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
-                  <Image
-                    src={em3}
-                    alt="news-image"
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                </div>
-
-                <h3 className="font-heading font-bold text-h5 mt-4">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
-
-                <p className="text-micro text-label mt-2">
-                  ● BBC • 3h ago • 4 Min Read
-                </p>
-
-                <p className="text-bodyM text-gray-600 mt-3">
-                  The new Netflix show looks like an ambitious BBC
-                  documentary...
-                </p>
-              </div>
-              <div>
-                <div className="w-[110px] h-[110px] lg:w-full lg:h-auto flex-shrink-0">
-                  <Image
-                    src={em4}
-                    alt="news-image"
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                </div>
-
-                <h3 className="font-heading font-bold text-h5 mt-4">
-                  Philomena Cunk Is Weird Enough to Take on the World
-                </h3>
-
-                <p className="text-micro text-label mt-2">
-                  ● BBC • 3h ago • 4 Min Read
-                </p>
-
-                <p className="text-bodyM text-gray-600 mt-3">
-                  The new Netflix show looks like an ambitious BBC
-                  documentary...
-                </p>
-              </div>
+              ))}
             </div>
           </div>
 
