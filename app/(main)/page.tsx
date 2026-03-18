@@ -26,7 +26,8 @@ export const gridNews = Array(4).fill({
 
 export default async function Home() {
   const news = (await getCoverage("published")) || [];
-
+  console.log("news",news)
+  
   /* SPLIT NEWS FOR SECTIONS */
 
  /* SPLIT NEWS FOR SECTIONS */
