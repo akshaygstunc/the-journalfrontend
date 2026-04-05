@@ -1,6 +1,6 @@
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://mistress-graduation-carriers-george.trycloudflare.com/news";
+  "https://journal-backend-phi.vercel.app/news";
 
 export async function fetchApi(url: string, options: RequestInit = {}) {
   let token: string | null = null;
