@@ -12,6 +12,8 @@ import mw3 from "../../public/images/mw3.png";
 import mw4 from "../../public/images/mw4.png";
 import { getCoverage } from "@/src/services/news.service";
 import Link from "next/link";
+import { resolveSchemas } from "@/src/lib/schema/resolver";
+import Schema from "@/src/components/Schema";
 
 // data/homeData.ts
 
@@ -27,6 +29,40 @@ export const gridNews = Array(4).fill({
 export default async function Home() {
   const news = (await getCoverage("published")) || [];
   console.log("news", news);
+
+ const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+const schemas = resolveSchemas({
+  type: "home",
+  data: {
+    title: "Home",
+    description: "Latest news",
+    url: baseUrl,
+
+ hero: news[0] && {
+  title: news[0].title,
+  description: news[0].summary || news[0].content?.slice(0, 120),
+  image: news[0].image,
+  datePublished: news[0].publishedAt,
+  url: `${baseUrl}/category/${news[0].category}/${news[0].slug}-${news[0]._id}`,
+},
+trending: news.slice(0, 4).map((item: any) => ({
+  title: item.title,
+  description: item.summary || item.content?.slice(0, 120),
+  image: item.image,
+  datePublished: item.publishedAt,
+  url: `${baseUrl}/category/${item.category}/${item.slug}-${item._id}`,
+})),
+
+    explore: news.slice(5, 10).map((item: any) => ({
+      title: item.title,
+      image: item.image,
+      datePublished: item.publishedAt,
+      url: `${baseUrl}/category/${item.category}/${item.slug}-${item._id}`,
+    })),
+  },
+});
 
   /* SPLIT NEWS FOR SECTIONS */
 
@@ -53,7 +89,17 @@ export default async function Home() {
     if (!html) return "";
     return html.replace(/<[^>]*>/g, "");
   };
+
+
+
+  if (!news || news.length === 0) {
+  return <div>No News Found</div>;
+}
   return (
+    <>
+      
+            <Schema schemas={schemas} />
+
     <Container>
       <div className="bg-[#f5f5f5a9] min-h-screen font-sans">
         <div className="w-full mx-auto mt-12 space-y-20">
@@ -385,5 +431,6 @@ export default async function Home() {
         </div>
       </div>
     </Container>
+    </>
   );
 }
