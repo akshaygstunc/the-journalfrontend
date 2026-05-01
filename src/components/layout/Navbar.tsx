@@ -10,7 +10,7 @@ import { FiGrid, FiSearch } from "react-icons/fi";
 import { getWeather } from "@/src/lib/api/weather";
 import { searchNews } from "@/src/lib/api/news";
 import { IoClose } from "react-icons/io5";
-
+import { useRouter } from "next/navigation";
 export default function Navbar() {
   const pathname = usePathname();
   const isArticlePage = pathname.startsWith("/article");
@@ -50,7 +50,7 @@ export default function Navbar() {
       prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic],
     );
   };
-
+const router = useRouter();
   const clearAll = () => {
     setSelectedTopics([]);
     setSortBy("Latest");
@@ -338,24 +338,30 @@ export default function Navbar() {
                 </div>
               </div>
               <div className="w-0.5 border-l-[1.5px] border-[#D1D1D1] h-12.5"></div>
-              {/* Categories */}
-              <nav className="w-[80%] flex justify-between">
-                {categories.map((cat) => (
-                  <Link
-                    key={cat}
-                    href={`/category/${cat.toLowerCase()}`}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`font-body pb-1 transition-colors duration-200
-                  ${
-                    cat === activeCategory
-                      ? "text-[#861212] border-b-2 border-[#861212]"
-                      : "text-[#6D6D6D] hover:text-[#861212]"
-                  }`}
-                  >
-                    {cat}
-                  </Link>
-                ))}
-              </nav>
+
+
+<nav className="w-[80%] flex justify-between">
+  {categories.map((cat) => (
+    <span
+      key={cat}
+      onClick={() => {
+        setActiveCategory(cat);
+        router.push(`/category/${cat.toLowerCase()}`);
+      }}
+      onMouseEnter={() => {
+        router.prefetch(`/category/${cat.toLowerCase()}`);
+      }}
+      className={`cursor-pointer font-body pb-1 transition-colors duration-200
+        ${
+          cat === activeCategory
+            ? "text-[#861212] border-b-2 border-[#861212]"
+            : "text-[#6D6D6D] hover:text-[#861212]"
+        }`}
+    >
+      {cat}
+    </span>
+  ))}
+</nav>
             </div>
 
             {/* ROW 2: Sub navigation */}

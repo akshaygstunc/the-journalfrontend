@@ -21,7 +21,10 @@ export default async function CategoryPage({
   console.log("slug:", slug);
 
   if (!slug) return notFound();
-  const news = await getNewsByCategory(slug);
+const news = await getNewsByCategory(slug, {
+  next: { revalidate: 60 }
+});
+  // 👇 ADD THIS LINE
   const hero1 = news[0];
   const hero2 = news[1];
   const side1 = news[2];
