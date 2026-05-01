@@ -6,7 +6,7 @@ import Container from "@/src/components/layout/Container";
 import { notFound } from "next/navigation";
 import { resolveSchemas } from "@/src/lib/schema/resolver";
 import Schema from "@/src/components/Schema";
-import { getArticleBySlug } from "@/src/lib/api/news"; // 👈 make sure this exists
+import { getArticleBySlug } from "@/src/lib/api/news";
 
 export default async function ArticlePage({
   params,

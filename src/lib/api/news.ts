@@ -38,3 +38,16 @@ export async function searchNews(query: string) {
     return [];
   }
 }
+
+export async function getArticleBySlug(slug: string) {
+  try {
+    const res = await fetchApi(`/news/slug/${slug}`, {
+      method: "GET",
+    });
+
+    return res;
+  } catch (error) {
+    console.error("Article fetch by slug failed:", error);
+    return null;
+  }
+}
