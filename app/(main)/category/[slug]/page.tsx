@@ -18,13 +18,16 @@ export default async function CategoryPage({
 }) {
   const { slug } = await params;
 
-  console.log("slug:", slug);
+  // ✅ Normalize slug — decode URI encoding + lowercase
+  // "Style" → "style", "Foreign%20Affairs" → "foreign affairs"
+  const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
 
-  if (!slug) return notFound();
-const news = await getNewsByCategory(slug, {
-  next: { revalidate: 60 }
-});
-  // 👇 ADD THIS LINE
+  if (!normalizedSlug) return notFound();
+
+  const news = await getNewsByCategory(normalizedSlug, {
+    next: { revalidate: 60 },
+  });
+
   const hero1 = news[0];
   const hero2 = news[1];
   const side1 = news[2];
@@ -49,51 +52,61 @@ const news = await getNewsByCategory(slug, {
     return `${datePart} • ${timePart}`;
   }
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://yoursite.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://yoursite.com";
 
-
-
-
-  if (!news || news.length === 0) return notFound();
+  if (!news || news.length === 0) {
+    return (
+      <Container>
+        <div className="w-full mx-auto p-6 md:p-12">
+          <h1 className="text-[30px] md:text-[50px] font-bold text-[#212121] capitalize mb-6 md:mb-10">
+            {normalizedSlug} News
+          </h1>
+          <p className="text-gray-500 text-lg">
+            No articles found for this category.
+          </p>
+        </div>
+      </Container>
+    );
+  }
 
   const schemas = resolveSchemas({
     type: "category",
     data: {
-      title: `${slug} News`,
-      description: `Latest ${slug} news, updates and breaking stories`,
-      url: `${baseUrl}/category/${slug}`,
+      // ✅ use normalizedSlug everywhere for consistency
+      title: `${normalizedSlug} News`,
+      description: `Latest ${normalizedSlug} news, updates and breaking stories`,
+      url: `${baseUrl}/category/${normalizedSlug}`,
 
       articles: news.map((item: any) => ({
         title: item.title,
         description:
-          item.summary ||
-          item.content?.replace(/<[^>]*>/g, "").slice(0, 140), image: item.image,
-        datePublished: item.publishedAt || item.createdAt, url: `${baseUrl}/category/${slug}/${item.slug}-${item._id}`,
+          item.summary || item.content?.replace(/<[^>]*>/g, "").slice(0, 140),
+        image: item.image,
+        datePublished: item.publishedAt || item.createdAt,
+        url: `${baseUrl}/category/${normalizedSlug}/${item.slug}-${item._id}`,
       })),
     },
   });
 
-
   return (
-
     <>
       <Schema schemas={schemas} />
 
       <Container>
         <div className="w-full mx-auto p-6 md:p-12">
           <div>
-            {/* Category Title */}
+            {/* Category Title — capitalize display only, slug stays lowercase */}
             <h1 className="text-[30px] md:text-[50px] font-bold text-[#212121] capitalize mb-6 md:mb-10">
-              {slug} News
-            </h1>        </div>
+              {normalizedSlug} News
+            </h1>
+          </div>
 
           {/* Top 2 Featured */}
           <div className="grid md:grid-cols-2 gap-12 mb-10 md:mb-20">
-            {/* Left Featured */}
-
             {hero1 && (
-              <Link href={`/category/${slug}/${hero1.slug}-${hero1._id}`}>
+              <Link
+                href={`/category/${normalizedSlug}/${hero1.slug}-${hero1._id}`}
+              >
                 <div className="group cursor-pointer">
                   <div className="relative w-full mb-5">
                     <Image
@@ -103,24 +116,23 @@ const news = await getNewsByCategory(slug, {
                       height={400}
                     />
                   </div>
-
                   <h2 className="text-[24px] md:text-[30px] text-[#212121] font-bold leading-snug mb-3 transition-colors">
                     {hero1.title}
                   </h2>
-
                   <p className="text-xs text-[#4F4F4F] mb-4 tracking-wide">
                     ● {hero1.source} • {formatDate(hero1.createdAt)}
                   </p>
-
                   <p className="text-[#2F2F2F] text-[16px] leading-6 border-t border-[#D1D1D1] pt-4">
                     {hero1.summary}
                   </p>
                 </div>
               </Link>
             )}
-            {/* Right Featured */}
+
             {hero2 && (
-              <Link href={`/category/${slug}/${hero2.slug}-${hero2._id}`}>
+              <Link
+                href={`/category/${normalizedSlug}/${hero2.slug}-${hero2._id}`}
+              >
                 <div className="group cursor-pointer">
                   <div className="relative w-full mb-5">
                     <Image
@@ -130,15 +142,12 @@ const news = await getNewsByCategory(slug, {
                       height={400}
                     />
                   </div>
-
                   <h2 className="text-[24px] md:text-[30px] text-[#212121] font-bold leading-snug mb-3 transition-colors">
                     {hero2.title}
                   </h2>
-
                   <p className="text-xs text-[#4F4F4F] mb-4 tracking-wide">
                     ● {hero2.source} • {formatDate(hero2.createdAt)}
                   </p>
-
                   <p className="text-[#2F2F2F] text-[16px] leading-6 border-t border-[#D1D1D1] pt-4">
                     {hero2.summary}
                   </p>
@@ -165,7 +174,7 @@ const news = await getNewsByCategory(slug, {
               NATO Response <MdArrowOutward />
             </span>
             <span className="flex items-center gap-2 hover:text-action cursor-pointer">
-              Russia’s Strategy <MdArrowOutward />
+              Russia's Strategy <MdArrowOutward />
             </span>
             <span className="flex items-center gap-2 hover:text-action cursor-pointer">
               Global Impact <MdArrowOutward />
@@ -174,10 +183,12 @@ const news = await getNewsByCategory(slug, {
 
           {/* 3 Column Highlight Section */}
           <div className="grid grid-cols-12 gap-6 md:gap-10 mb-16">
-            {/* Left Small News (3 cols) */}
+            {/* Left Small (3 cols) */}
             {side1 && (
               <div className="col-span-12 lg:col-span-3">
-                <Link href={`/category/${slug}/${side1.slug}-${side1._id}`}>
+                <Link
+                  href={`/category/${normalizedSlug}/${side1.slug}-${side1._id}`}
+                >
                   <div className="mb-4">
                     <Image
                       src={side1.image || poli1}
@@ -190,25 +201,25 @@ const news = await getNewsByCategory(slug, {
                   <span className="bg-[#861212] text-white text-xs px-3 py-1 rounded-full">
                     Live
                   </span>
-
                   <h3 className="font-semibold text-lg md:text-[24px] mt-4 mb-2">
                     {side1.title}
                   </h3>
-
                   <p className="text-sm text-gray-500 mb-3">
                     ● {side1.source} • {formatDate(side1.createdAt)}
                   </p>
-
                   <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
                     {side1.summary}
                   </p>
                 </Link>
               </div>
             )}
-            {/* Center Big Featured (6 cols) */}
+
+            {/* Center Big (6 cols) */}
             {center && (
               <div className="col-span-12 lg:col-span-6">
-                <Link href={`/category/${slug}/${center.slug}-${center._id}`}>
+                <Link
+                  href={`/category/${normalizedSlug}/${center.slug}-${center._id}`}
+                >
                   <div className="mb-4">
                     <Image
                       src={center.image || poli1}
@@ -218,15 +229,12 @@ const news = await getNewsByCategory(slug, {
                       className="w-full h-auto rounded-md"
                     />
                   </div>
-
                   <h2 className="font-bold text-[24px] md:text-3xl text-[#212121] mb-2">
                     {center.title}
                   </h2>
-
                   <p className="text-sm text-gray-500 mb-3">
-                    ● {center.source} • {formatDate(center.createdAt)}{" "}
+                    ● {center.source} • {formatDate(center.createdAt)}
                   </p>
-
                   <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
                     {center.summary}
                   </p>
@@ -234,10 +242,12 @@ const news = await getNewsByCategory(slug, {
               </div>
             )}
 
-            {/* Right Small News (3 cols) */}
+            {/* Right Small (3 cols) */}
             {side2 && (
               <div className="col-span-12 lg:col-span-3">
-                <Link href={`/category/${slug}/${side2.slug}-${side2._id}`}>
+                <Link
+                  href={`/category/${normalizedSlug}/${side2.slug}-${side2._id}`}
+                >
                   <div className="mb-4">
                     <Image
                       src={side2.image || poli1}
@@ -250,15 +260,12 @@ const news = await getNewsByCategory(slug, {
                   <span className="bg-[#861212] text-white text-xs px-3 py-1 rounded-full">
                     Live
                   </span>
-
                   <h3 className="font-semibold text-lg md:text-[24px] mt-4 mb-2">
                     {side2.title}
                   </h3>
-
                   <p className="text-sm text-gray-500 mb-3">
-                    ● {side2.source} • {formatDate(side2.createdAt)}{" "}
+                    ● {side2.source} • {formatDate(side2.createdAt)}
                   </p>
-
                   <p className="text-sm text-gray-600 leading-6 pt-2 border-t border-[#D1D1D1]">
                     {side2.summary}
                   </p>

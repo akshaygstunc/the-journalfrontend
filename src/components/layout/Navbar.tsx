@@ -50,7 +50,7 @@ export default function Navbar() {
       prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic],
     );
   };
-const router = useRouter();
+  const router = useRouter();
   const clearAll = () => {
     setSelectedTopics([]);
     setSortBy("Latest");
@@ -100,7 +100,7 @@ const router = useRouter();
           <h1 className="text-[24px] font-bold text-[#861212] tracking-wide">
             <Link href="/">
               <Image
-                src="/images/logo.png"
+                src="/images/sophie.jpeg"
                 alt="Sophie Media"
                 width={100}
                 height={120}
@@ -188,8 +188,11 @@ const router = useRouter();
             <Image src={day} alt="weather" width={40} />
             <div>
               <div className="font-semibold text-lg">
-                {weather ? `${weather.temp}°C` : "Loading..."}
+                {weather
+                  ? `${Math.round((weather.temp * 9) / 5 + 32)}°F`
+                  : "Loading..."}
               </div>
+
               <div className="text-xs text-gray-500">
                 {new Date().toLocaleDateString("en-US", {
                   weekday: "long",
@@ -235,7 +238,7 @@ const router = useRouter();
 
           {/* Results Dropdown */}
           {query && (
-            <div className="absolute top-18 left-20 w-[400px] bg-white border border-[#E5E5E5] rounded-lg shadow-lg p-4 z-50">
+            <div className="absolute top-18 left-20 w-100 bg-white border border-[#E5E5E5] rounded-lg shadow-lg p-4 z-50">
               {/* Header with close button */}
               <div className="flex justify-between items-center mb-3">
                 <p className="text-sm font-semibold text-gray-700">
@@ -290,11 +293,11 @@ const router = useRouter();
           <div className="flex items-center justify-center flex-1 overflow-hidden">
             <Link href="/">
               <Image
-                src="/images/logo.png"
+                src="/images/sophie.jpeg"
                 alt="Sophie Media"
                 width={100}
                 height={120}
-                className="h-16 w-auto object-contain scale-150"
+                className="h-16 w-auto object-contain scale-100"
                 priority
               />
             </Link>
@@ -324,44 +327,47 @@ const router = useRouter();
               <div className="flex items-center gap-2 text-sm py-2">
                 <Image src={day} alt="weather" width={40} />
                 <div>
-                  <div className="font-semibold text-lg">
-                    {weather ? `${weather.temp}°C` : "Loading..."}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {new Date().toLocaleDateString("en-US", {
-                      weekday: "long",
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </div>
-                </div>
+              <div className="font-semibold text-lg">
+                {weather
+                  ? `${Math.round((weather.temp * 9) / 5 + 32)}°F`
+                  : "Loading..."}
+              </div>
+
+              <div className="text-xs text-gray-500">
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </div>
+            </div>
               </div>
               <div className="w-0.5 border-l-[1.5px] border-[#D1D1D1] h-12.5"></div>
 
-
-<nav className="w-[80%] flex justify-between">
-  {categories.map((cat) => (
-    <span
-      key={cat}
-      onClick={() => {
-        setActiveCategory(cat);
-        router.push(`/category/${cat.toLowerCase()}`);
-      }}
-      onMouseEnter={() => {
-        router.prefetch(`/category/${cat.toLowerCase()}`);
-      }}
-      className={`cursor-pointer font-body pb-1 transition-colors duration-200
+              <nav className="w-[80%] flex justify-between">
+                {categories.map((cat) => (
+                  <span
+                    key={cat}
+                    onClick={() => {
+                       const slug = cat.toLowerCase().replace(/\s+/g, "-");
+                      setActiveCategory(cat);
+                       router.push(`/category/${slug}`);
+                    }}
+                    onMouseEnter={() => {
+                      router.prefetch(`/category/${cat.toLowerCase()}`);
+                    }}
+                    className={`cursor-pointer font-body pb-1 transition-colors duration-200
         ${
           cat === activeCategory
             ? "text-[#861212] border-b-2 border-[#861212]"
             : "text-[#6D6D6D] hover:text-[#861212]"
         }`}
-    >
-      {cat}
-    </span>
-  ))}
-</nav>
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </nav>
             </div>
 
             {/* ROW 2: Sub navigation */}
@@ -531,7 +537,7 @@ const router = useRouter();
             {categories.map((cat) => (
               <Link
                 key={cat}
-                href={`/category/${cat.toLowerCase()}`}
+                href={`/category/${cat.toLowerCase().replace(/\s+/g, "-")}`}
                 onClick={() => setActiveCategory(cat)}
                 className={`cursor-pointer flex flex-col text-sm ${
                   activeCategory === cat

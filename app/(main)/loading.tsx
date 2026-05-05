@@ -1,9 +1,9 @@
-import { HeroSkeleton } from "@/src/components/Skeleton";
+import { DashboardSkeleton } from "@/src/components/Skeleton";
 
 export default function Loading() {
   return (
     <div className="py-20">
-      <HeroSkeleton />
+      <DashboardSkeleton />
     </div>
   );
 }
