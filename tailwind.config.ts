@@ -36,6 +36,16 @@ const config: Config = {
         label: "#4F4F4F",
 
       },
+       keyframes: {
+        shimmer: {
+          "0%":   { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
+      animation: {
+        // used as  animate-[shimmer_1.6s_infinite]  in Skeleton.tsx
+        shimmer: "shimmer 1.6s infinite",
+      },
 
     },
   },

@@ -4,10 +4,84 @@
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import ArticleHeroSlider from "./ArticleHeroSlider";
+import { Skeleton } from "../Skeleton";
+
+
+/* ─────────────────────────────────────────────
+   ARTICLE SKELETON
+───────────────────────────────────────────────*/
+function ArticleBodySkeleton() {
+  return (
+    <div>
+      {/* Hero Slider placeholder */}
+      <Skeleton className="w-full h-[480px]" rounded="md" />
+ 
+      <div className="space-y-7 mt-8">
+        {/* Paragraph lines */}
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-4/5" />
+        </div>
+ 
+        {/* H2 heading */}
+        <Skeleton className="h-7 w-72 mt-12" rounded="sm" />
+ 
+        {/* Short paragraph */}
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+ 
+        {/* Blockquote */}
+        <div className="border-l-4 border-[#8B1C1C] pl-6 py-2 my-8 space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/5" />
+        </div>
+ 
+        {/* Bullet list */}
+        <div className="pl-6 space-y-3">
+          {["w-48", "w-64", "w-56"].map((w, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-2 w-2 flex-shrink-0" rounded="full" />
+              <Skeleton className={`h-4 ${w}`} />
+            </div>
+          ))}
+        </div>
+ 
+        {/* More paragraph lines */}
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-4/5" />
+          <Skeleton className="h-4 w-2/3" />
+        </div>
+ 
+        {/* Continue Reading button placeholder */}
+        <div className="flex justify-center mt-12">
+          <Skeleton className="h-11 w-44" rounded="full" />
+        </div>
+      </div>
+ 
+      {/* Divider */}
+      <div className="border-b border-gray-300 mt-16" />
+    </div>
+  );
+}
 export default function ArticleBody() {
   const [expanded, setExpanded] = useState(false);
+    const [loading, setLoading] = useState(true);
   const hiddenRef = useRef<HTMLDivElement | null>(null);
 
+
+  useEffect(() => {
+    // Replace with your real data-fetch signal — this simulates a short load
+    const timer = setTimeout(() => setLoading(false), 1800);
+    return () => clearTimeout(timer);
+  }, []);
   useEffect(() => {
     if (expanded && hiddenRef.current) {
       hiddenRef.current.scrollIntoView({
@@ -17,6 +91,8 @@ export default function ArticleBody() {
     }
   }, [expanded]);
 
+
+  if (loading) return <ArticleBodySkeleton />;
   return (
     <div>
       {/* Hero Image */}

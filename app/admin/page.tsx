@@ -1,5 +1,6 @@
 "use client";
 
+import { DashboardSkeleton } from "@/src/components/Skeleton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RiAddLine } from "react-icons/ri";
@@ -33,6 +34,7 @@ const quickLinks = [
 ];
 
 export default function AdminDashboard() {
+   const [loading, setLoading] = useState(true);
   // const [news, setNews] = useState([]);
 
   // const fetchNews = async () => {
@@ -48,6 +50,15 @@ export default function AdminDashboard() {
   // useEffect(() => {
   //   fetchNews();
   // }, []);
+
+  useEffect(() => {
+    // Replace with your real fetch — this simulates a 2-second load
+    const timer = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+ 
+  // ← Show full-page skeleton while loading
+  if (loading) return <DashboardSkeleton />;
  
   return (
     <div className="p-6 bg-[#F6F6F6] min-h-screen">
