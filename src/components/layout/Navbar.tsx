@@ -11,18 +11,14 @@ import { getWeather } from "@/src/lib/api/weather";
 import { searchNews } from "@/src/lib/api/news";
 import { IoClose } from "react-icons/io5";
 import { useRouter } from "next/navigation";
+import { fetchApi } from "@/src/services/fetchApi";
 export default function Navbar() {
   const pathname = usePathname();
   const isArticlePage = pathname.startsWith("/article");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // replace with real auth later
-  const topics = [
-    "Foreign Affairs",
-    "Military Affairs",
-    "Political Parties",
-    "Ministry & Governance",
-  ];
+
   const categories = [
     "World",
     "Politics",
@@ -37,7 +33,8 @@ export default function Navbar() {
     "Style",
   ];
   const [showTopics, setShowTopics] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("");
+  const [activeCategory, setActiveCategory] =
+    useState("World");
   const [selectedTopics, setSelectedTopics] = useState(["Foreign Affairs"]);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -45,18 +42,83 @@ export default function Navbar() {
   const [sortBy, setSortBy] = useState("Latest");
   const [weather, setWeather] = useState<any>(null);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [topics, setTopics] = useState<string[]>([]);
+  const loadFilters = async () => {
+
+    try {
+
+      const data = await fetchApi(
+        "/news/filters",
+        {
+          method: "GET",
+        }
+      );
+
+      setTopics(data || []);
+
+    } catch (error) {
+
+      console.error(
+        "Filter load error:",
+        error,
+      );
+    }
+  };
   const toggleTopic = (topic: string) => {
     setSelectedTopics((prev) =>
       prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic],
     );
   };
   const router = useRouter();
+
+
+  const applyFilters = () => {
+
+    const params =
+      new URLSearchParams();
+
+    // TAGS
+    if (
+      selectedTopics.length > 0
+    ) {
+
+      params.set(
+        "tags",
+        selectedTopics.join(","),
+      );
+    }
+
+    // SORT
+    if (sortBy) {
+
+      params.set(
+        "sort",
+        sortBy.toLowerCase(),
+      );
+    }
+
+    // CATEGORY
+    const categorySlug =
+      activeCategory
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+
+    router.push(
+      `/category/${categorySlug}?${params.toString()}`
+    );
+
+    setMobileFilterOpen(false);
+  };
   const clearAll = () => {
     setSelectedTopics([]);
     setSortBy("Latest");
   };
   useEffect(() => {
+
     loadWeather();
+
+    loadFilters();
+
   }, []);
 
   const loadWeather = async () => {
@@ -327,21 +389,21 @@ export default function Navbar() {
               <div className="flex items-center gap-2 text-sm py-2">
                 <Image src={day} alt="weather" width={40} />
                 <div>
-              <div className="font-semibold text-lg">
-                {weather
-                  ? `${Math.round((weather.temp * 9) / 5 + 32)}°F`
-                  : "Loading..."}
-              </div>
+                  <div className="font-semibold text-lg">
+                    {weather
+                      ? `${Math.round((weather.temp * 9) / 5 + 32)}°F`
+                      : "Loading..."}
+                  </div>
 
-              <div className="text-xs text-gray-500">
-                {new Date().toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </div>
-            </div>
+                  <div className="text-xs text-gray-500">
+                    {new Date().toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </div>
+                </div>
               </div>
               <div className="w-0.5 border-l-[1.5px] border-[#D1D1D1] h-12.5"></div>
 
@@ -350,19 +412,18 @@ export default function Navbar() {
                   <span
                     key={cat}
                     onClick={() => {
-                       const slug = cat.toLowerCase().replace(/\s+/g, "-");
+                      const slug = cat.toLowerCase().replace(/\s+/g, "-");
                       setActiveCategory(cat);
-                       router.push(`/category/${slug}`);
+                      router.push(`/category/${slug}`);
                     }}
                     onMouseEnter={() => {
                       router.prefetch(`/category/${cat.toLowerCase()}`);
                     }}
                     className={`cursor-pointer font-body pb-1 transition-colors duration-200
-        ${
-          cat === activeCategory
-            ? "text-[#861212] border-b-2 border-[#861212]"
-            : "text-[#6D6D6D] hover:text-[#861212]"
-        }`}
+        ${cat === activeCategory
+                        ? "text-[#861212] border-b-2 border-[#861212]"
+                        : "text-[#6D6D6D] hover:text-[#861212]"
+                      }`}
                   >
                     {cat}
                   </span>
@@ -454,9 +515,8 @@ export default function Navbar() {
       )}
 
       <div
-        className={`fixed top-0 left-0 h-full w-[280px] bg-white z-50 transform transition-transform duration-300 md:hidden ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-[280px] bg-white z-50 transform transition-transform duration-300 md:hidden ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex justify-between items-center px-5 py-4 border-b">
           <span className="font-bold text-[#861212]">
@@ -527,9 +587,8 @@ export default function Navbar() {
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-[360px] bg-[#F3F1EE] z-50 transform transition-transform duration-300 md:hidden ${
-          mobileFilterOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-full max-w-[360px] bg-[#F3F1EE] z-50 transform transition-transform duration-300 md:hidden ${mobileFilterOpen ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         <div className="flex h-full">
           {/* LEFT COLUMN */}
@@ -538,12 +597,22 @@ export default function Navbar() {
               <Link
                 key={cat}
                 href={`/category/${cat.toLowerCase().replace(/\s+/g, "-")}`}
-                onClick={() => setActiveCategory(cat)}
-                className={`cursor-pointer flex flex-col text-sm ${
-                  activeCategory === cat
+                onClick={() => {
+
+                  setActiveCategory(cat);
+
+                  const slug =
+                    cat
+                      .toLowerCase()
+                      .replace(/\s+/g, "-");
+
+                  router.push(
+                    `/category/${slug}`
+                  );
+                }} className={`cursor-pointer flex flex-col text-sm ${activeCategory === cat
                     ? "text-[#861212] font-semibold"
                     : "text-gray-700"
-                }`}
+                  }`}
               >
                 {cat}
               </Link>
@@ -584,9 +653,8 @@ export default function Navbar() {
                   <div
                     key={topic}
                     onClick={() => toggleTopic(topic)}
-                    className={`cursor-pointer ${
-                      selectedTopics.includes(topic) ? "text-[#861212]" : ""
-                    }`}
+                    className={`cursor-pointer ${selectedTopics.includes(topic) ? "text-[#861212]" : ""
+                      }`}
                   >
                     {selectedTopics.includes(topic) && "✓ "}
                     {topic}
@@ -601,7 +669,7 @@ export default function Navbar() {
                 Clear
               </button>
               <button
-                onClick={() => setMobileFilterOpen(false)}
+                onClick={applyFilters}
                 className="text-[#861212] font-semibold"
               >
                 Apply
