@@ -1,6 +1,6 @@
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://journal-backend-phi.vercel.app/news";
+  "https://sophiemedia.org/api";
 
 export async function fetchApi(url: string, options: RequestInit = {}) {
   let token: string | null = null;
@@ -9,19 +9,19 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
     token = localStorage.getItem("token");
   }
 
-  const headers: HeadersInit = {  
+  const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
     ...(options.headers || {}),
   };
 
   const res = await fetch(`${BASE_URL}${url}`, {
-  ...options,
-  headers,
-  credentials: "include",
-  cache: "no-store",
-  next: { revalidate: 0 },
-});
+    ...options,
+    headers,
+    credentials: "include",
+    cache: "no-store",
+    next: { revalidate: 0 },
+  });
 
   if (!res.ok) {
     throw new Error("API request failed");
