@@ -1,15 +1,9 @@
 import Container from "@/src/components/layout/Container";
 import { SectionHeader } from "@/src/components/SectionHeader";
 import Image from "next/image";
-import em from "../../public/images/em.png";
-import em1 from "../../public/images/em1.png";
-import em2 from "../../public/images/em2.png";
-import em3 from "../../public/images/em3.png";
-import em4 from "../../public/images/em4.png";
-import mw1 from "../../public/images/mw1.png";
-import mw2 from "../../public/images/mw2.png";
-import mw3 from "../../public/images/mw3.png";
-import mw4 from "../../public/images/mw4.png";
+export const dynamic = "force-dynamic";
+
+export const revalidate = 0;
 import { getCoverage } from "@/src/services/news.service";
 import Link from "next/link";
 import { resolveSchemas } from "@/src/lib/schema/resolver";

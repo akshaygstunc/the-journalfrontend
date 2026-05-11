@@ -16,10 +16,12 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
   };
 
   const res = await fetch(`${BASE_URL}${url}`, {
-    ...options,
-    headers,
-    credentials: "include",
-  });
+  ...options,
+  headers,
+  credentials: "include",
+  cache: "no-store",
+  next: { revalidate: 0 },
+});
 
   if (!res.ok) {
     throw new Error("API request failed");

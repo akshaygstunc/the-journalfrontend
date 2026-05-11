@@ -372,23 +372,23 @@ export default function Navbar() {
 
             {/* ROW 2: Sub navigation */}
             <div className="flex justify-center gap-10 p-4 text-body">
-              <span className="font-semibold cursor-pointer hover:text-action">
+              {/* <span className="font-semibold cursor-pointer hover:text-action">
                 Latest
-              </span>
-              <span className="font-semibold cursor-pointer hover:text-action">
+              </span> */}
+              {/* <span className="font-semibold cursor-pointer hover:text-action">
                 Most Read
-              </span>
-              <span className="font-semibold cursor-pointer hover:text-action">
+              </span> */}
+              {/* <span className="font-semibold cursor-pointer hover:text-action">
                 Most Shared
-              </span>
+              </span> */}
               <span className="font-semibold cursor-pointer flex items-center gap-1 hover:text-action">
                 <div className="relative">
-                  <span
+                  {/* <span
                     onClick={() => setShowTopics(!showTopics)}
                     className="font-semibold cursor-pointer flex items-center gap-1 hover:text-[#861212]"
                   >
                     Explore Topic <span className="text-xs">▾</span>
-                  </span>
+                  </span> */}
 
                   {showTopics && (
                     <div className="absolute top-10 right-0 w-70 bg-white border border-[#E7E7E7] rounded-md shadow-lg p-4 z-50">
