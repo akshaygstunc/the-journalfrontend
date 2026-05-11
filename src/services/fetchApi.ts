@@ -9,7 +9,7 @@ export async function fetchApi(url: string, options: RequestInit = {}) {
     token = localStorage.getItem("token");
   }
 
-  const headers: HeadersInit = {
+  const headers: HeadersInit = {  
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
     ...(options.headers || {}),
