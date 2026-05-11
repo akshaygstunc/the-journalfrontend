@@ -56,16 +56,130 @@ export default async function CategoryPage({
 
   if (!news || news.length === 0) {
     return (
-      <Container>
-        <div className="w-full mx-auto p-6 md:p-12">
-          <h1 className="text-[30px] md:text-[50px] font-bold text-[#212121] capitalize mb-6 md:mb-10">
-            {normalizedSlug} News
-          </h1>
-          <p className="text-gray-500 text-lg">
-            No articles found for this category.
-          </p>
-        </div>
-      </Container>
+  <Container>
+
+  <div className="
+    w-full
+    flex
+    justify-center
+    items-center
+    px-4
+    py-10
+    md:py-20
+  ">
+
+    <div className="
+      w-full
+      max-w-[700px]
+      bg-[#F8F6F3]
+      border
+      border-[#E7E7E7]
+      rounded-[24px]
+      px-6
+      py-10
+      md:px-12
+      md:py-14
+      text-center
+      shadow-sm
+    ">
+
+      <h1 className="
+        text-[34px]
+        md:text-[56px]
+        leading-tight
+        font-bold
+        text-[#111111]
+        capitalize
+        mb-6
+      ">
+        {normalizedSlug} News
+      </h1>
+
+      <h2 className="
+        text-[22px]
+        md:text-[32px]
+        font-semibold
+        text-[#1F1F1F]
+        mb-4
+      ">
+        Fresh stories coming soon
+      </h2>
+
+      <p className="
+        text-[#555]
+        text-[15px]
+        md:text-[18px]
+        leading-7
+        max-w-[520px]
+        mx-auto
+      ">
+        We are curating the latest
+        {` ${normalizedSlug} `}
+        coverage, trends, and insights.
+
+        Please check back shortly
+        for new updates.
+      </p>
+
+      <div className="
+        mt-8
+        flex
+        flex-col
+        sm:flex-row
+        justify-center
+        items-center
+        gap-4
+      ">
+
+        <Link
+          href="/"
+          className="
+            w-full
+            sm:w-auto
+            bg-[#861212]
+            text-white
+            px-7
+            py-3
+            rounded-lg
+            text-sm
+            md:text-base
+            font-medium
+            transition-all
+            hover:opacity-90
+          "
+        >
+          Back to Home
+        </Link>
+
+        <Link
+          href={`/category/${normalizedSlug}`}
+          className="
+            w-full
+            sm:w-auto
+            border
+            border-[#861212]
+            text-[#861212]
+            px-7
+            py-3
+            rounded-lg
+            text-sm
+            md:text-base
+            font-medium
+            transition-all
+            hover:bg-[#861212]
+            hover:text-white
+          "
+        >
+          Refresh
+        </Link>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</Container>
     );
   }
 
